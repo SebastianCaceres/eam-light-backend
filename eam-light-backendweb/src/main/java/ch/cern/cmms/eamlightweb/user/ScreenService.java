@@ -51,6 +51,8 @@ public class ScreenService implements Cacheable {
         screens.add("OSJOBS"); // NCR Work Orders
         screens.add("SSMANU"); // Manufacturers
         screens.add("SSLOTS");
+        screens.add("WSPMTW"); // Permit To Work
+        screens.add("OSEQRV"); // Equipment Revisions
     }
 
     @Override

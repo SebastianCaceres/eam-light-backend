@@ -19,6 +19,8 @@ public class UserData {
 	private String ncrWorkOrderScreen;
 	private String manufacturerScreen;
 	private String lotScreen;
+	private String permitToWorkScreen;
+	private String equipmentRevisionScreen;
 
 	private Map<String, List<Map<String, String>>> reports;
 
@@ -128,6 +130,22 @@ public class UserData {
 
 	public void setLotScreen(String lotScreen) {
 		this.lotScreen = lotScreen;
+	}
+
+	public String getPermitToWorkScreen() {
+		return permitToWorkScreen;
+	}
+
+	public void setPermitToWorkScreen(String permitToWorkScreen) {
+		this.permitToWorkScreen = permitToWorkScreen;
+	}
+
+	public String getEquipmentRevisionScreen() {
+		return equipmentRevisionScreen;
+	}
+
+	public void setEquipmentRevisionScreen(String equipmentRevisionScreen) {
+		this.equipmentRevisionScreen = equipmentRevisionScreen;
 	}
 
 	@Override
