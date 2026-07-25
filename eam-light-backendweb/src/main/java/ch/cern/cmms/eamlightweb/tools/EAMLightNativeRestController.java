@@ -1,15 +1,15 @@
 package ch.cern.cmms.eamlightweb.tools;
 
 import ch.cern.eam.wshub.core.client.InforClient;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 public class EAMLightNativeRestController {
 
-
-    @Inject
+    @Autowired
     protected AuthenticationTools authenticationTools;
-    @Inject
+    @Autowired
     protected InforClient inforClient;
 
     /**
@@ -18,11 +18,8 @@ public class EAMLightNativeRestController {
      * @param <T>
      * @return
      */
-    public <T> Response ok(T Result) {
-        return Response
-                .status(Response.Status.OK)
-                .entity(EAMNativeResponse.fromData(Result))
-                .build();
+    public <T> ResponseEntity<?> ok(T Result) {
+        return ResponseEntity.ok(EAMNativeResponse.fromData(Result));
     }
 
     /**
@@ -30,11 +27,9 @@ public class EAMLightNativeRestController {
      * @param exception
      * @return
      */
-    public Response serverError(Exception exception) {
-        return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(EAMNativeResponse.fromException(exception))
-                .build();
+    public ResponseEntity<?> serverError(Exception exception) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(EAMNativeResponse.fromException(exception));
     }
 
     /**
@@ -42,11 +37,9 @@ public class EAMLightNativeRestController {
      * @param exception
      * @return
      */
-    public Response badRequest(Exception exception) {
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity(EAMNativeResponse.fromException(exception))
-                .build();
+    public ResponseEntity<?> badRequest(Exception exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(EAMNativeResponse.fromException(exception));
     }
 
 }

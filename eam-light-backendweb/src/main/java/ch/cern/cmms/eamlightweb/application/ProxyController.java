@@ -19,48 +19,49 @@ import net.datastream.schemas.mp_functions.mp0324_001.MP0324_GetEquipmentCategor
 import net.datastream.schemas.mp_functions.mp0328_002.MP0328_GetPositionParentHierarchy_002;
 import net.datastream.schemas.mp_results.mp0324_001.MP0324_GetEquipmentCategory_001_Result;
 import net.datastream.schemas.mp_results.mp0328_002.MP0328_GetPositionParentHierarchy_002_Result;
-import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.inject.spi.CDI;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.*;
-import javax.enterprise.context.ApplicationScoped;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
-
-@ApplicationScoped
-@Path("proxy")
+@RestController
+@RequestMapping("/proxy")
 public class ProxyController extends EAMLightNativeRestController {
 
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
-    @Inject
+    @Autowired
     private ApplicationData applicationData;
 
+    @Autowired(required = false)
     private InforInterceptor inforInterceptor;
+
+    private HttpClient httpClient;
 
     @PostConstruct
     public void init() {
-        try {
-            inforInterceptor = CDI.current().select(InforInterceptor.class).get();
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        this.httpClient = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
     }
 
-    @GET
-    @Path("/category/{categoryCode}")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response readCustomFields(@PathParam("categoryCode") String categoryCode) {
+    @GetMapping("/category/{categoryCode}")
+    public ResponseEntity<?> readCustomFields(@PathVariable("categoryCode") String categoryCode) {
         try {
             MP0324_GetEquipmentCategory_001 getEquipmentCategory = new MP0324_GetEquipmentCategory_001();
             getEquipmentCategory.setCATEGORYID(new CATEGORYID());
@@ -74,11 +75,8 @@ public class ProxyController extends EAMLightNativeRestController {
         }
     }
 
-    @GET
-    @Path("/customfields")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response readCustomFields(@QueryParam("entityCode") String entityCode, @QueryParam("classCode") String classCode) {
+    @GetMapping("/customfields")
+    public ResponseEntity<?> readCustomFields(@RequestParam("entityCode") String entityCode, @RequestParam("classCode") String classCode) {
         try {
             return ok(inforClient.getTools().getCustomFieldsTools().getInforCustomFields(authenticationTools.getInforContext(), entityCode, classCode));
         } catch (InforException e) {
@@ -88,11 +86,8 @@ public class ProxyController extends EAMLightNativeRestController {
         }
     }
 
-    @GET
-    @Path("/positionparenthierarchy")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response readPositionHierarchy(@QueryParam("code") String code, @QueryParam("org") String org) {
+    @GetMapping("/positionparenthierarchy")
+    public ResponseEntity<?> readPositionHierarchy(@RequestParam("code") String code, @RequestParam("org") String org) {
         try {
             MP0328_GetPositionParentHierarchy_002 getpositionph = new MP0328_GetPositionParentHierarchy_002();
             getpositionph.setPOSITIONID(new EQUIPMENTID_Type());
@@ -111,68 +106,62 @@ public class ProxyController extends EAMLightNativeRestController {
         }
     }
 
-    @Path("{path: .*}")
-    @GET
-    @POST
-    @PUT
-    @DELETE
-    @HEAD
-    @OPTIONS
-    public Response proxy(String body, @Context Request request, @Context UriInfo uriInfo) {
+    @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+    public ResponseEntity<?> proxy(@RequestBody(required = false) String body, HttpServletRequest request) {
         try {
-            String path = uriInfo.getPath(false).replace("/proxy", "");
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(URI.create(applicationData.getRESTURL() + path));
-            Invocation.Builder builder = target.request();
+            String requestURI = request.getRequestURI();
+            String contextPath = request.getContextPath();
+            String path = requestURI.substring((contextPath + "/proxy").length());
+            if (request.getQueryString() != null) {
+                path += "?" + request.getQueryString();
+            }
 
             InforContext inforContext = authenticationTools.getInforContext();
+            HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(applicationData.getRESTURL() + path));
 
             if (inforContext.getCredentials() != null) {
                 String credentials = inforContext.getCredentials().getUsername() + ":" + inforContext.getCredentials().getPassword();
-                builder.header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString(credentials.getBytes()));
+                reqBuilder.header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString(credentials.getBytes()));
             }
 
             if (inforContext.getSessionID() != null) {
-                builder.header("sessionid", inforContext.getSessionID());
-                builder.header("keepsession", "true");
+                reqBuilder.header("sessionid", inforContext.getSessionID());
+                reqBuilder.header("keepsession", "true");
             }
 
-            builder.header("tenant", authenticationTools.getInforContext().getTenant());
-            builder.header("organization", authenticationTools.getOrganizationCode());
-            builder.header("accept", "application/json");
+            reqBuilder.header("tenant", authenticationTools.getInforContext().getTenant());
+            reqBuilder.header("organization", authenticationTools.getOrganizationCode());
+            reqBuilder.header("accept", "application/json");
+
             String method = request.getMethod();
-            Entity<?> entity = (method.equals("GET") || method.equals("HEAD") || method.equals("OPTIONS")) ? null : Entity.json(body);
+            HttpRequest.BodyPublisher bodyPublisher = (body == null) ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(body);
+            reqBuilder.method(method, bodyPublisher);
 
-            Response originalResponse = builder.method(method, entity);
+            HttpResponse<String> httpResponse = httpClient.send(reqBuilder.build(), HttpResponse.BodyHandlers.ofString());
 
-            // Build new response from the original one and filter out caching headers
-            Response.ResponseBuilder responseBuilder = Response.status(originalResponse.getStatus()).entity(originalResponse.getEntity());
-
-            originalResponse.getHeaders().forEach((key, values) -> {
-                if (!key.equalsIgnoreCase("Cache-Control") && !key.equalsIgnoreCase("Pragma") && !key.equalsIgnoreCase("Expires")) {
-                    values.forEach(value -> responseBuilder.header(key, value));
+            HttpHeaders headers = new HttpHeaders();
+            httpResponse.headers().map().forEach((key, values) -> {
+                if (!key.equalsIgnoreCase("Cache-Control") && !key.equalsIgnoreCase("Pragma") && !key.equalsIgnoreCase("Expires") && !key.equalsIgnoreCase("content-length")) {
+                    values.forEach(value -> headers.add(key, value));
                 }
             });
 
-            Response response =  responseBuilder
-                        .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
-                        .header("Pragma", "no-cache")
-                        .header("Expires", "0")
-                        .build();
+            headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
 
-            log(method, path, body, response);
+            log(method, path, body, httpResponse.statusCode());
 
-            return response;
+            return new ResponseEntity<>(httpResponse.body(), headers, HttpStatus.valueOf(httpResponse.statusCode()));
 
         } catch (Exception e) {
-            return serverError(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-
     }
 
-    private void log(String method, String path, String requestBody, Response response) {
-        Logger.getLogger("wshublogger").log(Logger.Level.DEBUG, requestBody);
-        // TODO save response as well
+    private void log(String method, String path, String requestBody, int statusCode) {
+        Logger.getLogger("wshublogger").log(Level.FINE, requestBody);
 
         if (inforInterceptor == null) {
             return;
@@ -186,21 +175,21 @@ public class ProxyController extends EAMLightNativeRestController {
 
             InforResponseData inforResponseData = new InforResponseData.Builder()
                     .withResponse("RESPONSE")
-                            .withResponseTime(10000l)
-                                    .build();
+                    .withResponseTime(10000l)
+                    .build();
 
             InforExtractedData inforExtractedData = new InforExtractedData.Builder()
                     .withDataReference1(path).build();
 
             InforErrorData inforErrorData = new InforErrorData.Builder()
                     .withException(new Exception("ERROR"))
-                            .build();
+                    .build();
 
-            if (response.getStatus() == 200) {
+            if (statusCode == 200) {
                 inforInterceptor.afterSuccess(convert(method, path), inforRequestData, inforResponseData, inforExtractedData);
             }
 
-            if (response.getStatus() == 400) {
+            if (statusCode == 400) {
                 inforInterceptor.afterError(convert(method, path), inforRequestData, inforErrorData, inforExtractedData);
             }
 
@@ -208,11 +197,9 @@ public class ProxyController extends EAMLightNativeRestController {
             e.printStackTrace();
             System.out.println("error: " + e.getMessage());
         }
-
     }
 
     private INFOR_OPERATION convert(String method, String path) {
-        //TODO
         return INFOR_OPERATION.OTHER;
     }
 }

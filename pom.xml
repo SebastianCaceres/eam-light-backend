@@ -1,5 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.18</version>
+		<relativePath/>
+	</parent>
 
 	<groupId>ch.cern.cmms</groupId>
 	<artifactId>eam-light-backend</artifactId>
@@ -7,13 +13,13 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>eam-light-backendear</module>
 		<module>eam-light-backendweb</module>
 		<module>eam-light-backendejb</module>
 		<module>eam-light-interfaces</module>
 	</modules>
 
 	<properties>
+		<java.version>17</java.version>
 		<artifact.filename>${project.build.finalName}-${project.version}</artifact.filename>
 		<ch.cern.eam.eam-wshub-core.version>12.1-26-8-SNAPSHOT</ch.cern.eam.eam-wshub-core.version>
 		<ch.cern.cmms.eamtools.version>2.4.0</ch.cern.cmms.eamtools.version>
@@ -26,7 +32,7 @@
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
-			<version>7.0</version>
+			<version>8.0.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -39,7 +45,6 @@
 			<groupId>ch.cern.eam</groupId>
 			<artifactId>eam-wshub-core</artifactId>
 			<version>${ch.cern.eam.eam-wshub-core.version}</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -48,11 +53,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.11.0</version>
 				<configuration>
-					<!-- enforce Java 8 -->
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>17</source>
+					<target>17</target>
 				</configuration>
 			</plugin>
 		</plugins>

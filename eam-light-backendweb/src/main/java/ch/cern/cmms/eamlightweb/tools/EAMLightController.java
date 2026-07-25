@@ -8,8 +8,10 @@ import ch.cern.eam.wshub.core.services.grids.entities.GridRequestResult;
 import ch.cern.eam.wshub.core.tools.GridTools;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +20,9 @@ import java.util.stream.Collectors;
 public class EAMLightController {
 
 
-    @Inject
+    @Autowired
     protected AuthenticationTools authenticationTools;
-    @Inject
+    @Autowired
     protected InforClient inforClient;
 
     /**
@@ -29,11 +31,8 @@ public class EAMLightController {
      * @param <T>
      * @return
      */
-    public <T> Response ok(T data) {
-        return Response
-                .status(Response.Status.OK)
-                .entity(EAMResponse.fromData(data))
-                .build();
+    public <T> ResponseEntity<?> ok(T data) {
+        return ResponseEntity.ok(EAMResponse.fromData(data));
     }
 
     /**
@@ -41,10 +40,8 @@ public class EAMLightController {
      * @param <T>
      * @return
      */
-    public <T> Response noConent() {
-        return Response
-                .status(Response.Status.NO_CONTENT)
-                .build();
+    public <T> ResponseEntity<?> noConent() {
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -52,11 +49,9 @@ public class EAMLightController {
      * @param exception
      * @return
      */
-    public Response serverError(Exception exception) {
-        return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(EAMResponse.fromException(exception))
-                .build();
+    public ResponseEntity<?> serverError(Exception exception) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(EAMResponse.fromException(exception));
     }
 
     /**
@@ -64,21 +59,17 @@ public class EAMLightController {
      * @param exception
      * @return
      */
-    public Response badRequest(Exception exception) {
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity(EAMResponse.fromException(exception))
-                .build();
+    public ResponseEntity<?> badRequest(Exception exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(EAMResponse.fromException(exception));
     }
 
-    public Response forbidden(Exception exception) {
-        return Response
-                .status(Response.Status.FORBIDDEN)
-                .entity(EAMResponse.fromException(exception))
-                .build();
+    public ResponseEntity<?> forbidden(Exception exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(EAMResponse.fromException(exception));
     }
 
-    public Response getPairListResponse(GridRequest gridRequest, String codeKey, String descKey) {
+    public ResponseEntity<?> getPairListResponse(GridRequest gridRequest, String codeKey, String descKey) {
         try {
             return ok(inforClient.getTools().getGridTools().convertGridResultToObject(Pair.class,
                     Pair.generateGridPairMap(codeKey, descKey),
@@ -90,7 +81,7 @@ public class EAMLightController {
         }
     }
 
-    public Response getEntityListResponse(GridRequest gridRequest, String codeKey, String descKey, String organizationKey) {
+    public ResponseEntity<?> getEntityListResponse(GridRequest gridRequest, String codeKey, String descKey, String organizationKey) {
         try {
             return ok(inforClient.getTools().getGridTools().convertGridResultToObject(Entity.class,
                     Entity.generateGridEntityMap(codeKey, descKey, organizationKey),
@@ -102,11 +93,11 @@ public class EAMLightController {
         }
     }
 
-    public Response getMapListResponse(GridRequest gridRequest) {
+    public ResponseEntity<?> getMapListResponse(GridRequest gridRequest) {
        return getMapListResponse(gridRequest, null, null);
     }
 
-    public Response getMapListResponse(GridRequest gridRequest, String codeKey, String descKey) {
+    public ResponseEntity<?> getMapListResponse(GridRequest gridRequest, String codeKey, String descKey) {
         try {
             final GridRequestResult gridRequestResult = inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest);
             final List<Map<String, String>> maps = GridTools.convertGridResultToMapList(gridRequestResult);
