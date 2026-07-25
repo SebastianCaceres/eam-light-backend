@@ -1,65 +1,68 @@
 package ch.cern.cmms.eamlightweb.base;
 
+import ch.cern.cmms.eamlightejb.base.entity.CommentEntity;
+import ch.cern.cmms.eamlightejb.base.entity.CommentId;
+import ch.cern.cmms.eamlightejb.base.repository.CommentRepository;
 import ch.cern.cmms.eamlightweb.tools.AuthenticationTools;
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
-import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
-import ch.cern.eam.wshub.core.client.InforClient;
-import ch.cern.eam.wshub.core.services.comments.entities.Comment;
-import ch.cern.eam.wshub.core.tools.InforException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
+@RestController
 @RequestMapping("/comments")
-
 public class Comments extends EAMLightController {
 
 	@Autowired
-	private InforClient inforClient;
+	private CommentRepository commentRepository;
+
 	@Autowired
 	private AuthenticationTools authenticationTools;
 
 	@GetMapping
-	@RequestMapping("/")
-	
-	
 	public ResponseEntity<?> readComments(@RequestParam("entityCode") String entityCode,
 								 @RequestParam("entityKeyCode") String entityKeyCode) {
 		try {
-			return ok(inforClient.getCommentService().readComments(authenticationTools.getInforContext(), entityCode, entityKeyCode, null));
-		} catch (InforException e) {
-			return badRequest(e);
+			return ok(commentRepository.findByEntityCodeAndKeyValueOrderByLineAsc(entityCode, entityKeyCode));
 		} catch(Exception e) {
 			return serverError(e);
 		}
 	}
 
 	@PostMapping
-	
-	
-	public ResponseEntity<?> createComment(Comment comment) {
+	public ResponseEntity<?> createComment(@RequestBody CommentEntity comment) {
 		try {
-			return ok(inforClient.getCommentService().createComment(authenticationTools.getInforContext(), comment));
-		} catch (InforException e) {
-			return badRequest(e);
+			List<CommentEntity> existing = commentRepository.findByEntityCodeAndKeyValueOrderByLineAsc(comment.getEntityCode(), comment.getKeyValue());
+			int nextLine = existing.stream().mapToInt(CommentEntity::getLine).max().orElse(0) + 1;
+
+			comment.setLine(nextLine);
+			comment.setUser(authenticationTools.getInforContext().getCredentials().getUsername());
+			comment.setDate(new Date());
+
+			return ok(commentRepository.save(comment));
 		} catch(Exception e) {
 			return serverError(e);
 		}
 	}
 
 	@PutMapping
-	
-	
-	public ResponseEntity<?> updateComment(Comment comment) {
+	public ResponseEntity<?> updateComment(@RequestBody CommentEntity comment) {
 		try {
-			return ok(inforClient.getCommentService().updateComment(authenticationTools.getInforContext(), comment));
-		} catch (InforException e) {
-			return badRequest(e);
+			CommentId id = new CommentId(comment.getKeyValue(), comment.getEntityCode(), comment.getLine());
+			Optional<CommentEntity> existingOpt = commentRepository.findById(id);
+			if (existingOpt.isPresent()) {
+				CommentEntity entity = existingOpt.get();
+				entity.setText(comment.getText());
+				entity.setUser(authenticationTools.getInforContext().getCredentials().getUsername());
+				entity.setDate(new Date());
+				return ok(commentRepository.save(entity));
+			} else {
+				return badRequest(new Exception("Comment not found for update"));
+			}
 		} catch(Exception e) {
 			return serverError(e);
 		}
