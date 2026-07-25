@@ -10,21 +10,21 @@ import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
 
 import javax.ejb.EJB;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
-@ApplicationScoped
+@Component
 public class EquipmentStructure
 {
     @EJB
     private EquipmentEJB equipmentEJB;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
     private int counter = 0;

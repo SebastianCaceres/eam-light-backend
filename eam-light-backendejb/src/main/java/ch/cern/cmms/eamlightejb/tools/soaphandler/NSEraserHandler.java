@@ -24,9 +24,9 @@ public class NSEraserHandler implements SOAPHandler<SOAPMessageContext> {
 			try {
 				// Clean SOAP Header
 				@SuppressWarnings("unchecked")
-				Iterator<SOAPElement> headerIter = context.getMessage().getSOAPPart().getEnvelope().getHeader().getChildElements();
+				Iterator<?> headerIter = context.getMessage().getSOAPPart().getEnvelope().getHeader().getChildElements();
 				while (headerIter.hasNext()) {
-					cleanSOAPElement(headerIter.next());	
+					cleanSOAPElement((SOAPElement) headerIter.next());	
 				}
 				// Clean SOAP Body (only the first element)
 				cleanSOAPElement((SOAPElement) context.getMessage().getSOAPPart().getEnvelope().getBody().getChildElements().next());

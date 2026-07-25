@@ -10,48 +10,50 @@ import ch.cern.cmms.plugins.SharedPlugin;
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.client.InforContext;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Path("/application")
-@ApplicationScoped
-@Interceptors({RESTLoggingInterceptor.class})
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+@RestController
+@RequestMapping("/application")
+
 public class ApplicationController extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private ApplicationData applicationData;
-	@Inject
+	@Autowired
 	private CacheManager cacheManager;
-	@Inject
+	@Autowired
 	private ApplicationService applicationService;
-	@Inject
+	@Autowired
 	private SharedPlugin sharedPlugin;
-	@Inject
+	@Autowired
 	private LDAPPlugin ldapPlugin;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
 
-	@GET
-	@Path("/hello")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response sayHello() {
+	@GetMapping
+	@RequestMapping("/hello")
+	
+	
+	public ResponseEntity<?> sayHello() {
 		return ok(sharedPlugin.sayHello() + " (EAMLIGHT_INFOR_WS_URL=" + applicationData.getInforWSURL() + ")");
 	}
 
-	@GET
-	@Path("/applicationdata")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response readApplicationData() {
+	@GetMapping
+	@RequestMapping("/applicationdata")
+	
+	
+	public ResponseEntity<?> readApplicationData() {
 		try {
 			final InforContext inforContext = authenticationTools.getInforContext();
 			return ok(applicationService.getParams(inforContext.getTenant()));
@@ -60,19 +62,19 @@ public class ApplicationController extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/refreshCache")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response cleanCache() {
+	@GetMapping
+	@RequestMapping("/refreshCache")
+	
+	
+	public ResponseEntity<?> cleanCache() {
 		cacheManager.clearAllCaches();
 		return ok("EAM Light cache has been successfully refreshed.");
 	}
 
-	@GET
-	@Path("/version")
-	@Produces("application/json")
-	public Response readVersion() {
+	@GetMapping
+	@RequestMapping("/version")
+	
+	public ResponseEntity<?> readVersion() {
 		String version = applicationData.getVersion();
 		return ok(version);
 	}

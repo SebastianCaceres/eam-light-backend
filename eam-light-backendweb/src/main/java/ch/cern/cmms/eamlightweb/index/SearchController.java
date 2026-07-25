@@ -1,10 +1,13 @@
 package ch.cern.cmms.eamlightweb.index;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import ch.cern.cmms.eamlightejb.index.IndexEJB;
 import ch.cern.cmms.eamlightejb.index.IndexGrids;
@@ -22,25 +25,25 @@ import java.util.List;
  * application
  *
  */
-@ApplicationScoped
-@Path("/index")
-@Interceptors({ RESTLoggingInterceptor.class })
+@Component
+@RequestMapping("/index")
+
 public class SearchController extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private IndexGrids indexGrids;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
-	@Inject
+	@Autowired
 	private IndexEJB indexEJB;
-	@Inject
+	@Autowired
 	private InforClient inforClient;
 
-	@GET
-	@Path("/")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response getSearchResults(@QueryParam("s") String searchKeyWord, @QueryParam("entityTypes") String entityTypes) {
+	@GetMapping
+	@RequestMapping("/")
+	
+	
+	public ResponseEntity<?> getSearchResults(@RequestParam("s") String searchKeyWord, @RequestParam("entityTypes") String entityTypes) {
 		if (searchKeyWord != null) {
 			searchKeyWord = searchKeyWord.trim();
 		}
@@ -63,10 +66,10 @@ public class SearchController extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/singleresult")
-	@Produces("application/json")
-	public Response getIndexSingleResult(@QueryParam("s") String searchKeyword) {
+	@GetMapping
+	@RequestMapping("/singleresult")
+	
+	public ResponseEntity<?> getIndexSingleResult(@RequestParam("s") String searchKeyword) {
 		if (searchKeyword != null) {
 			searchKeyword = searchKeyword.trim();
 		}

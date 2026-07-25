@@ -10,27 +10,30 @@ import ch.cern.eam.wshub.core.services.workorders.entities.WorkOrderActivityChec
 import ch.cern.eam.wshub.core.services.workorders.entities.WorkOrderActivityChecklistSignature;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.math.BigInteger;
 
-@Path("/checklists")
-@Interceptors({ RESTLoggingInterceptor.class })
+@RequestMapping("/checklists")
+
 public class ChecklistController extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@PUT
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response updateChecklist(
+	@PutMapping
+	
+	
+	public ResponseEntity<?> updateChecklist(
 			WorkOrderActivityChecklistItem checklistItem,
-			@QueryParam("taskPlanCode") String taskPlanCode
+			@RequestParam("taskPlanCode") String taskPlanCode
 	) {
 		try {
 			TaskPlan taskPlan = null;
@@ -51,11 +54,11 @@ public class ChecklistController extends EAMLightController {
 		}
 	}
 
-	@POST
-	@Path("/workorders")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response createFollowUpWorkOrders(Activity activity) {
+	@PostMapping
+	@RequestMapping("/workorders")
+	
+	
+	public ResponseEntity<?> createFollowUpWorkOrders(Activity activity) {
 		try {
 			return ok(inforClient.getChecklistService().createFollowUpWorkOrders(authenticationTools.getInforContext(), activity));
 		} catch (InforException e) {
@@ -65,11 +68,11 @@ public class ChecklistController extends EAMLightController {
 		}
 	}
 
-	@PUT
-	@Path("/esign")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response eSignWorkOrderActivityChecklist(WorkOrderActivityChecklistSignature workOrderActivityCheckListSignature) {
+	@PutMapping
+	@RequestMapping("/esign")
+	
+	
+	public ResponseEntity<?> eSignWorkOrderActivityChecklist(WorkOrderActivityChecklistSignature workOrderActivityCheckListSignature) {
 		try {
 			return ok(inforClient.getChecklistService().eSignWorkOrderActivityChecklist(authenticationTools.getInforContext(), workOrderActivityCheckListSignature));
 		} catch (InforException e) {
@@ -79,10 +82,10 @@ public class ChecklistController extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/definition/{taskplanid}/{id}")
-	@Produces("application/json")
-	public Response getChecklistDefinition(@PathParam("taskplanid") String taskPlanCode, @PathParam("id") String id) {
+	@GetMapping
+	@RequestMapping("/definition/{taskplanid}/{id}")
+	
+	public ResponseEntity<?> getChecklistDefinition(@PathVariable("taskplanid") String taskPlanCode, @PathVariable("id") String id) {
 		try {
 			TaskPlan taskPlan = new TaskPlan();
 			taskPlan.setCode(taskPlanCode);

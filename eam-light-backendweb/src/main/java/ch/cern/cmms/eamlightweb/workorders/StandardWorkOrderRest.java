@@ -4,21 +4,24 @@ import ch.cern.cmms.eamlightweb.tools.EAMLightController;
 import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
 
-@Path("/stdworkorders")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+@RestController
+@RequestMapping("/stdworkorders")
+
 public class StandardWorkOrderRest extends EAMLightController {
 
-    @GET
-    @Path("/{stdworkorder}")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response readWorkOrder(@PathParam("stdworkorder") String number) {
+    @GetMapping
+    @RequestMapping("/{stdworkorder}")
+    
+    
+    public ResponseEntity<?> readWorkOrder(@PathVariable("stdworkorder") String number) {
         try {
             return ok(inforClient.getStandardWorkOrderService().readStandardWorkOrder(authenticationTools.getInforContext(), number));
         } catch (InforException e) {

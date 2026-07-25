@@ -11,36 +11,39 @@ import ch.cern.eam.wshub.core.services.equipment.entities.EquipmentReplacement;
 import ch.cern.eam.wshub.core.services.material.entities.PartAssociation;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Path("/equipment")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+@RestController
+@RequestMapping("/equipment")
+
 public class EquipmentRest extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private EquipmentEJB equipmentEJB;
-	@Inject
+	@Autowired
 	private EquipmentReplacementService equipmentReplacementService;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@Inject
+	@Autowired
 	private CodeGeneratorService codeGeneratorService;
-	@Inject
+	@Autowired
 	private MTFWorkOrderServiceImpl mtfStandardWorkOrderService;
 
-	@POST
-	@Path("/replace")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response replaceEquipment(EquipmentReplacement eqpReplacement) {
+	@PostMapping
+	@RequestMapping("/replace")
+	
+	
+	public ResponseEntity<?> replaceEquipment(EquipmentReplacement eqpReplacement) {
 		try {
 			return ok(equipmentReplacementService.replaceEquipment(authenticationTools.getInforContext(), eqpReplacement));
 		} catch (InforException e) {
@@ -50,10 +53,10 @@ public class EquipmentRest extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/collectdetachables/{oldEquipment}")
-	@Produces("application/json")
-	public Response collectDetachableEquipment(@PathParam("oldEquipment") String oldEquipmentCode) {
+	@GetMapping
+	@RequestMapping("/collectdetachables/{oldEquipment}")
+	
+	public ResponseEntity<?> collectDetachableEquipment(@PathVariable("oldEquipment") String oldEquipmentCode) {
 		try {
 			return ok(equipmentReplacementService.collectDetachableEquipment(authenticationTools.getInforContext(), oldEquipmentCode));
 		} catch (InforException e) {
@@ -63,10 +66,10 @@ public class EquipmentRest extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/children/{equipment}")
-	@Produces("application/json")
-	public Response getEquipmentChildren(@PathParam("equipment") String equipment) {
+	@GetMapping
+	@RequestMapping("/children/{equipment}")
+	
+	public ResponseEntity<?> getEquipmentChildren(@PathVariable("equipment") String equipment) {
 		try {
 			return ok(equipmentEJB.getEquipmentChildren(equipment));
 		} catch(Exception e) {
@@ -74,10 +77,10 @@ public class EquipmentRest extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/{eqCode}/mtfsteps/maxstep")
-	@Produces("application/json")
-	public Response getEquipmentStandardWOMaxStep(@PathParam("eqCode") String eqCode, @QueryParam("swo") String swo) {
+	@GetMapping
+	@RequestMapping("/{eqCode}/mtfsteps/maxstep")
+	
+	public ResponseEntity<?> getEquipmentStandardWOMaxStep(@PathVariable("eqCode") String eqCode, @RequestParam("swo") String swo) {
 		try {
 			return ok(mtfStandardWorkOrderService.getEquipmentStandardWOMaxStep(eqCode, swo));
 		} catch(Exception e) {
@@ -85,10 +88,10 @@ public class EquipmentRest extends EAMLightController {
 		}
 	}
 
-	@POST
-       @Path("/partsassociated")
-       @Produces("application/json")
-       public Response createPartAssociation(PartAssociation partAssociation) {
+	@PostMapping
+       @RequestMapping("/partsassociated")
+       
+       public ResponseEntity<?> createPartAssociation(PartAssociation partAssociation) {
 	   try {
 		   return ok(inforClient.getPartMiscService().createPartAssociation(authenticationTools.getInforContext(), partAssociation));
 	   } catch(Exception e) {

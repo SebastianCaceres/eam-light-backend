@@ -7,25 +7,28 @@ import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.services.workorders.entities.Activity;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Path("/activities")
-@Interceptors({ RESTLoggingInterceptor.class })
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+@RequestMapping("/activities")
+
 public class ActivitiesRest extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@GET
-	@Path("/read")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response readActivities(@QueryParam("workorder") String number, @DefaultValue("true") @QueryParam("includeChecklists") Boolean includeChecklists) {
+	@GetMapping
+	@RequestMapping("/read")
+	
+	
+	public ResponseEntity<?> readActivities(@RequestParam("workorder") String number, @RequestParam(value = "includeChecklists", defaultValue = "true") Boolean includeChecklists) {
 		try {
 			return ok(inforClient.getLaborBookingService().readActivities(authenticationTools.getInforContext(), number, includeChecklists));
 		} catch (InforException e) {
@@ -35,10 +38,10 @@ public class ActivitiesRest extends EAMLightController {
 		}
 	}
 
-	@POST
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response createActivity(Activity activity) {
+	@PostMapping
+	
+	
+	public ResponseEntity<?> createActivity(Activity activity) {
 		try {
 			return ok(inforClient.getLaborBookingService().createActivity(authenticationTools.getInforContext(),activity));
 		} catch (InforException e) {
@@ -48,10 +51,10 @@ public class ActivitiesRest extends EAMLightController {
 		}
 	}
 
-	@PUT
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response updateActivity(Activity activity) {
+	@PutMapping
+	
+	
+	public ResponseEntity<?> updateActivity(Activity activity) {
 		try {
 			return ok(inforClient.getLaborBookingService().updateActivity(authenticationTools.getInforContext(), activity, "confirmed"));
 		} catch (InforException e) {
@@ -61,11 +64,11 @@ public class ActivitiesRest extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/init/{workorder}")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response initActivity(@PathParam("workorder") String number) {
+	@GetMapping
+	@RequestMapping("/init/{workorder}")
+	
+	
+	public ResponseEntity<?> initActivity(@PathVariable("workorder") String number) {
 		try {
 			Activity activity = new Activity();
 			return ok(activity);
@@ -74,9 +77,9 @@ public class ActivitiesRest extends EAMLightController {
 		}
 	}
 
-	@DELETE
-	@Produces("application/json")
-	public Response deleteActivity(Activity activity) {
+	@DeleteMapping
+	
+	public ResponseEntity<?> deleteActivity(Activity activity) {
 		try {
 			return ok(inforClient.getLaborBookingService().deleteActivity(authenticationTools.getInforContext(), activity));
 		} catch (InforException e) {

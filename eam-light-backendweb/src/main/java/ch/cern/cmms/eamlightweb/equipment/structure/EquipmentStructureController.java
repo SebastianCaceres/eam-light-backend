@@ -7,15 +7,17 @@ import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
 import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
 import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
@@ -24,23 +26,23 @@ import ch.cern.cmms.eamlightejb.equipment.EquipmentEJB;
 import java.util.LinkedList;
 import java.util.List;
 
-@Path("/eqstructure")
-@Interceptors({ RESTLoggingInterceptor.class })
+@RequestMapping("/eqstructure")
+
 public class EquipmentStructureController extends EAMLightController {
 
 
 
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
-    @Inject
+    @Autowired
     private InforClient inforClient;
-    @Inject EquipmentStructure equipmentStructure;
+    @Autowired EquipmentStructure equipmentStructure;
 
-	@GET
-	@Path("/tree")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response readEquipmentTree(@QueryParam("eqid") String eqID, @QueryParam("org") String org, @QueryParam("type") String type) {
+	@GetMapping
+	@RequestMapping("/tree")
+	
+	
+	public ResponseEntity<?> readEquipmentTree(@RequestParam("eqid") String eqID, @RequestParam("org") String org, @RequestParam("type") String type) {
 		try {
 			return ok(equipmentStructure.readEquipmentTree(eqID, org, type));
 		} catch(Exception e) {
@@ -48,11 +50,11 @@ public class EquipmentStructureController extends EAMLightController {
 		}
 	}
 
-	@POST
-    @Path("/attach")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response attachEquipment(ch.cern.eam.wshub.core.services.equipment.entities.EquipmentStructure equipmentStructure){
+	@PostMapping
+    @RequestMapping("/attach")
+    
+    
+    public ResponseEntity<?> attachEquipment(ch.cern.eam.wshub.core.services.equipment.entities.EquipmentStructure equipmentStructure){
         try{
             return ok(inforClient.getEquipmentStructureService().addEquipmentToStructure(authenticationTools.getInforContext(), equipmentStructure));
         }catch (InforException ie){
@@ -60,11 +62,11 @@ public class EquipmentStructureController extends EAMLightController {
         }
     }
 
-    @POST
-    @Path("/detach")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response detachEquipment(ch.cern.eam.wshub.core.services.equipment.entities.EquipmentStructure equipmentStructure){
+    @PostMapping
+    @RequestMapping("/detach")
+    
+    
+    public ResponseEntity<?> detachEquipment(ch.cern.eam.wshub.core.services.equipment.entities.EquipmentStructure equipmentStructure){
         try{
             return ok(inforClient.getEquipmentStructureService().removeEquipmentFromStructure(authenticationTools.getInforContext(), equipmentStructure));
         }catch (InforException ie){

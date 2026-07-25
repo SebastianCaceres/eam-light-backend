@@ -5,14 +5,14 @@ import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequestResult;
 import ch.cern.eam.wshub.core.tools.InforException;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
-@ApplicationScoped
+@Component
 public class CodeGeneratorService {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
 
 

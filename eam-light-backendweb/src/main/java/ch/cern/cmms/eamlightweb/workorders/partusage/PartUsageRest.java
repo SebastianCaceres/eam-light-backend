@@ -18,11 +18,14 @@ import ch.cern.eam.wshub.core.services.workorders.entities.WorkOrder;
 import ch.cern.eam.wshub.core.tools.GridTools;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,26 +34,26 @@ import java.util.Map;
 import static ch.cern.eam.wshub.core.tools.Tools.extractEntityCode;
 import static ch.cern.eam.wshub.core.tools.Tools.extractOrganizationCode;
 
-@Path("/partusage")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+@RestController
+@RequestMapping("/partusage")
+
 public class PartUsageRest extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
-	@Inject
+	@Autowired
 	private SharedPlugin sharedPlugin;
-	@Inject
+	@Autowired
 	private ApplicationService applicationService;
 
-	@GET
-	@Path("/bins")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response loadBinList(@QueryParam("transaction") String transaction, @QueryParam("bin") String bin,
-								@QueryParam("part") String part, @QueryParam("store") String store) {
+	@GetMapping
+	@RequestMapping("/bins")
+	
+	
+	public ResponseEntity<?> loadBinList(@RequestParam("transaction") String transaction, @RequestParam("bin") String bin,
+								@RequestParam("part") String part, @RequestParam("store") String store) {
 		try {
 			GridRequest gridRequest;
 			if (transaction.startsWith("I")) {
@@ -77,13 +80,13 @@ public class PartUsageRest extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/lots/issue")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response loadLotListIssue(@QueryParam("lot") String lot, @QueryParam("bin") String bin,
-									 @QueryParam("part") String part, @QueryParam("store") String store,
-									 @QueryParam("requireAvailableQty") boolean requireAvailableQty) {
+	@GetMapping
+	@RequestMapping("/lots/issue")
+	
+	
+	public ResponseEntity<?> loadLotListIssue(@RequestParam("lot") String lot, @RequestParam("bin") String bin,
+									 @RequestParam("part") String part, @RequestParam("store") String store,
+									 @RequestParam("requireAvailableQty") boolean requireAvailableQty) {
 		try {
 			GridRequest gridRequest;
 			InforContext context = authenticationTools.getInforContext();
@@ -114,11 +117,11 @@ public class PartUsageRest extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/lots/return")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response loadLotListReturn(@QueryParam("lot") String lot, @QueryParam("part") String part) {
+	@GetMapping
+	@RequestMapping("/lots/return")
+	
+	
+	public ResponseEntity<?> loadLotListReturn(@RequestParam("lot") String lot, @RequestParam("part") String part) {
 		try {
 			GridRequest gridRequest;
 			InforContext context = authenticationTools.getInforContext();
@@ -149,11 +152,11 @@ public class PartUsageRest extends EAMLightController {
 		}
 	}
 
-	@POST
-	@Path("/transaction")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response createPartUsage(IssueReturnPartTransaction transaction) {
+	@PostMapping
+	@RequestMapping("/transaction")
+	
+	
+	public ResponseEntity<?> createPartUsage(IssueReturnPartTransaction transaction) {
 		try {
 			transaction.setTransactionOn(IssueReturnPartTransactionType.WORKORDER);
 			return ok(inforClient.getPartMiscService().createIssueReturnTransaction(authenticationTools.getInforContext(), transaction));
@@ -165,11 +168,11 @@ public class PartUsageRest extends EAMLightController {
 	}
 
 
-	@POST
-	@Path("/init")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response initPartUsage(WorkOrder workOrder) {
+	@PostMapping
+	@RequestMapping("/init")
+	
+	
+	public ResponseEntity<?> initPartUsage(WorkOrder workOrder) {
 		try {
 			// Create the issue/return transacction for the workOrder
 			IssueReturnPartTransaction transaction = createTransaction(workOrder);

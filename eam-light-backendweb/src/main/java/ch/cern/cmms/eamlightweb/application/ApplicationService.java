@@ -15,13 +15,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@ApplicationScoped
+@Component
 public class ApplicationService implements Cacheable {
 
     private static final String SERVICE_ACCOUNTS_PARAM = "EL_SERVI";
@@ -29,11 +29,11 @@ public class ApplicationService implements Cacheable {
     private final ObjectMapper mapper = new ObjectMapper();
     private final LoadingCache<String, Map<String, String>> paramFieldCache = CacheUtils.buildLoadingCache(this::loadParams);
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
-    @Inject
+    @Autowired
     private CacheManager cacheManager;
 
     @Override

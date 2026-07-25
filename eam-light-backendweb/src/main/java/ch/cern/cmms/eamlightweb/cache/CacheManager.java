@@ -2,17 +2,17 @@ package ch.cern.cmms.eamlightweb.cache;
 
 import ch.cern.cmms.eamlightejb.cache.Cacheable;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.springframework.stereotype.Component;
 import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@ApplicationScoped
+@Component
 public class CacheManager {
 
-    @Inject
+    @Autowired
     private Instance<Cacheable> cacheables; // TODO only external service :(
 
     public void clearAllCaches() {

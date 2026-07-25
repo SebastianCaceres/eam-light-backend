@@ -13,22 +13,22 @@ import ch.cern.eam.wshub.core.tools.InforException;
 import ch.cern.eam.wshub.core.tools.Tools;
 import com.github.benmanes.caffeine.cache.Cache;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.concurrent.TimeUnit;
 
 import static ch.cern.eam.wshub.core.tools.DataTypeTools.isNotEmpty;
 
-@ApplicationScoped
+@Component
 public class UserService implements Cacheable {
 
     private final Cache<String, EAMUser> userCache = CacheUtils.buildDefaultCache();
 
-    @Inject
+    @Autowired
     private ScreenService screenService;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
     @Override

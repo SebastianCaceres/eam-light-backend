@@ -31,10 +31,10 @@ public class WSLoggingHandler implements SOAPHandler<SOAPMessageContext> {
 		String soapMessage  = soapMessageToString(context.getMessage());
 		Logger.getLogger("wshublogger").log(Level.DEBUG, regex.matcher(soapMessage).replaceAll("$1*********$4"));
 		try {
-			Iterator<SOAPElement> it = context.getMessage().getSOAPBody().getChildElements();
+			Iterator<?> it = context.getMessage().getSOAPBody().getChildElements();
 			
 			while (it.hasNext()) {
-				SOAPElement se = it.next();
+				SOAPElement se = (SOAPElement) it.next();
 				if (se.getElementName().getLocalName().equalsIgnoreCase("InformationAlert")) {
 					se.detachNode();
 				}

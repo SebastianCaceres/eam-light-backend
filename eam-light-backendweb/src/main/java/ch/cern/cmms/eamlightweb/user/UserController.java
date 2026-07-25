@@ -12,31 +12,34 @@ import ch.cern.eam.wshub.core.services.administration.entities.ScreenLayout;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.Optional;
 
-@Path("/users")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+@RestController
+@RequestMapping("/users")
+
 public class UserController extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private UserService userService;
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@GET
-	@Path("/")
-	@Produces("application/json")
-	public Response readUserData(@QueryParam("currentScreen") String currentScreen,
-								 @QueryParam("screenCode") String screenCode) {
+	@GetMapping
+	@RequestMapping("/")
+	
+	public ResponseEntity<?> readUserData(@RequestParam("currentScreen") String currentScreen,
+								 @RequestParam("screenCode") String screenCode) {
 		try {
 			final UserData userData = userService.getUserData(currentScreen, screenCode);
 			return ok(userData);
@@ -47,16 +50,16 @@ public class UserController extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/screenlayout/{userGroup}/{entity}/{systemFunction}/{userFunction}")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response readScreenLayout(@PathParam("userGroup") String userGroup,
-									 @PathParam("entity") String entity,
-									 @PathParam("systemFunction") String systemFunction,
-									 @PathParam("userFunction") String userFunction,
-									 @QueryParam("lang") String language,
-									 @QueryParam("tabname") List<String> tabs) throws InforException {
+	@GetMapping
+	@RequestMapping("/screenlayout/{userGroup}/{entity}/{systemFunction}/{userFunction}")
+	
+	
+	public ResponseEntity<?> readScreenLayout(@PathVariable("userGroup") String userGroup,
+									 @PathVariable("entity") String entity,
+									 @PathVariable("systemFunction") String systemFunction,
+									 @PathVariable("userFunction") String userFunction,
+									 @RequestParam("lang") String language,
+									 @RequestParam("tabname") List<String> tabs) throws InforException {
 		try {
             if (language == null) {
 				final InforContext inforContext = authenticationTools.getInforContext();
@@ -80,10 +83,10 @@ public class UserController extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/impersonate")
-	@Produces("application/json")
-	public Response readUserToImpersonate(@QueryParam("userId") String userId, @QueryParam("mode") AuthenticationTools.Mode mode) {
+	@GetMapping
+	@RequestMapping("/impersonate")
+	
+	public ResponseEntity<?> readUserToImpersonate(@RequestParam("userId") String userId, @RequestParam("mode") AuthenticationTools.Mode mode) {
 		try {
 			EAMUser userToImpersonate = authenticationTools.getUserToImpersonate(userId, mode);
 			return ok(userToImpersonate);

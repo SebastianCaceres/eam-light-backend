@@ -6,25 +6,28 @@ import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.springframework.stereotype.Component;
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
-@Path("/login")
-@ApplicationScoped
+@RestController
+@RequestMapping("/login")
 public class LoginController extends EAMLightController {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
 
-    @GET
-    @Path("/")
-    @Produces("application/json")
-    public Response login() throws InforException {
+    @GetMapping
+    @RequestMapping("/")
+    
+    public ResponseEntity<?> login() throws InforException {
         try {
             InforContext inforContext = authenticationTools.getInforContext();
             inforContext.setKeepSession(true);

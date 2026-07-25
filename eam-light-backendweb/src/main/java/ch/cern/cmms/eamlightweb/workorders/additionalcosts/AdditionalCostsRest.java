@@ -11,30 +11,33 @@ import ch.cern.eam.wshub.core.services.material.entities.IssueReturnPartTransact
 import ch.cern.eam.wshub.core.services.workorders.entities.WorkOrderAdditionalCosts;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Path("/workorders")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+@RestController
+@RequestMapping("/workorders")
+
 public class AdditionalCostsRest extends EAMLightController {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
 
-    @GET
-    @Path("/{workorder}/additionalcosts")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response loadAdditionalCostsList(@PathParam("workorder") String workorder) {
+    @GetMapping
+    @RequestMapping("/{workorder}/additionalcosts")
+    
+    
+    public ResponseEntity<?> loadAdditionalCostsList(@PathVariable("workorder") String workorder) {
         try {
             List<Map<String, String>> additionalCostsList = new ArrayList<>();
             if (workorder != null) {

@@ -8,30 +8,33 @@ import ch.cern.eam.wshub.core.services.equipment.entities.NonConformityObservati
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Path("/ncrobservations")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+@RestController
+@RequestMapping("/ncrobservations")
+
 public class NonConformityObservationsRest extends EAMLightController {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
 
-    @GET
-    @Path("/{ncr}")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response loadNonConformityObservations(@PathParam("ncr") String ncr) {
+    @GetMapping
+    @RequestMapping("/{ncr}")
+    
+    
+    public ResponseEntity<?> loadNonConformityObservations(@PathVariable("ncr") String ncr) {
         try {
             List<Map<String, String>> additionalCostsList = new ArrayList<>();
             if (ncr != null) {
@@ -53,11 +56,11 @@ public class NonConformityObservationsRest extends EAMLightController {
         }
     }
 
-    @POST
-    @Path("/")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response createNonConformityObservation(NonConformityObservation nonConformityObservation) {
+    @PostMapping
+    @RequestMapping("/")
+    
+    
+    public ResponseEntity<?> createNonConformityObservation(NonConformityObservation nonConformityObservation) {
         try {
             return ok(inforClient.getNonConformityObservationService().createNonConformityObservation(authenticationTools.getInforContext(), nonConformityObservation));
         } catch (InforException e) {

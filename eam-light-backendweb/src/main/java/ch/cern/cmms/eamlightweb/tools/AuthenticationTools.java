@@ -18,7 +18,7 @@ import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Set;
@@ -33,19 +33,19 @@ public class AuthenticationTools {
         PERSON
     }
 
-    @Inject
+    @Autowired
     private HttpServletRequest request;
-    @Inject
+    @Autowired
     private InforClient inforClient;
-    @Inject
+    @Autowired
     private ApplicationData applicationData;
-    @Inject
+    @Autowired
     private OpenIdTools openIdTools;
-    @Inject
+    @Autowired
     private ApplicationService applicationService;
-    @Inject
+    @Autowired
     private UserService userService;
-    @Inject
+    @Autowired
     private LDAPPlugin ldapPlugin;
 
     public InforContext getInforContext() throws InforException

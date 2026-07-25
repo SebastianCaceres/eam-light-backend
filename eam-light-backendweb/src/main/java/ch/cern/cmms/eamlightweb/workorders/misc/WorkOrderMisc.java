@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import ch.cern.cmms.eamlightweb.tools.AuthenticationTools;
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
@@ -18,20 +21,20 @@ import ch.cern.eam.wshub.core.services.grids.entities.GridRequestFilter;
 import ch.cern.eam.wshub.core.tools.InforException;
 import net.datastream.schemas.mp_results.mp7336_001.AdditionalWOEquipDetails;
 
-@Path("/workordersmisc")
-@Interceptors({ RESTLoggingInterceptor.class })
+@RequestMapping("/workordersmisc")
+
 public class WorkOrderMisc extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@GET
-	@Path("/eqpmecwo/{workorder}")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response getWorkOrderEquipment(@PathParam("workorder") String workorder) {
+	@GetMapping
+	@RequestMapping("/eqpmecwo/{workorder}")
+	
+	
+	public ResponseEntity<?> getWorkOrderEquipment(@PathVariable("workorder") String workorder) {
 		try {
 			Map<String, String> map = new HashMap<>();
 			map.put("247", "equipmentCode");
@@ -51,11 +54,11 @@ public class WorkOrderMisc extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/childrenwo/{workorder}")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response getChildrenWorkOrders(@PathParam("workorder") String workorder) throws InforException {
+	@GetMapping
+	@RequestMapping("/childrenwo/{workorder}")
+	
+	
+	public ResponseEntity<?> getChildrenWorkOrders(@PathVariable("workorder") String workorder) throws InforException {
 		try {
 			Map<String, String> map = new HashMap<>();
 			map.put("1", "number");
@@ -78,10 +81,10 @@ public class WorkOrderMisc extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/equipment")
-	@Produces("application/json")
-	public Response getWOEquipLinearDetails(@QueryParam("eqCode") String eqCode) throws InforException {
+	@GetMapping
+	@RequestMapping("/equipment")
+	
+	public ResponseEntity<?> getWOEquipLinearDetails(@RequestParam("eqCode") String eqCode) throws InforException {
 		try {
 			final AdditionalWOEquipDetails woEquipLinearDetails = inforClient.getWorkOrderMiscService().getEquipLinearDetails(authenticationTools.getR5InforContext(), eqCode);
 			return ok(woEquipLinearDetails);
@@ -92,10 +95,10 @@ public class WorkOrderMisc extends EAMLightController {
 		}
 	}
 
-	@GET
-	@Path("/otherid/{workorder}")
-	@Produces("application/json")
-	public Response getWOEqOtherIds(@PathParam("workorder") String workorder) {
+	@GetMapping
+	@RequestMapping("/otherid/{workorder}")
+	
+	public ResponseEntity<?> getWOEqOtherIds(@PathVariable("workorder") String workorder) {
 		try {
 			GridRequest gridRequestWoEqOi = new GridRequest("UUOIEQ", 1000);
 			gridRequestWoEqOi.addFilter("workorder", workorder, "EQUALS", GridRequestFilter.JOINER.AND);

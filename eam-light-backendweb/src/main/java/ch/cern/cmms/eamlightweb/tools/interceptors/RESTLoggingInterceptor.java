@@ -6,13 +6,13 @@ import org.jboss.logging.Logger;
 import java.util.Arrays;
 import java.util.Date;
 
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
 public class RESTLoggingInterceptor {
 
-	@Inject
+	@Autowired
 	private LoggingService loggingService;
 
 	@AroundInvoke
@@ -39,8 +39,8 @@ public class RESTLoggingInterceptor {
 			// Message to print
 			String message = "REST Operation: [" + ic.getMethod().getName() + "] [Time(" + totalTime + ")] [Request: "
 					+ Arrays.asList(Arrays.copyOfRange(ic.getParameters(), 0, length));
-			if (proceed instanceof javax.ws.rs.core.Response) {
-				message += "] [Response: " + ((javax.ws.rs.core.Response) proceed).getEntity() + "]";
+			if (proceed instanceof org.springframework.http.ResponseEntity<?>) {
+				message += "] [ResponseEntity<?>: " + ((org.springframework.http.ResponseEntity<?>) proceed).getBody() + "]";
 			}
 			// If error, attach
 			if (error != null)

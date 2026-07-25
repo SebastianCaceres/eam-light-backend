@@ -5,25 +5,28 @@ import ch.cern.cmms.eamlightweb.tools.EAMLightController;
 import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
-@Path("/workorders")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+@RestController
+@RequestMapping("/workorders")
+
 public class WatchersController extends EAMLightController {
 
-    @Inject
+    @Autowired
     private WatchersService watchersService;
 
-    @GET
-    @Path("/{woCode}/watchers")
-    @Produces("application/json")
-    public Response getWatchersForWorkOrder(@PathParam("woCode") String woCode) {
+    @GetMapping
+    @RequestMapping("/{woCode}/watchers")
+    
+    public ResponseEntity<?> getWatchersForWorkOrder(@PathVariable("woCode") String woCode) {
         try {
             return ok(watchersService.getWatchersForWorkOrder(authenticationTools.getInforContext(), woCode));
         } catch (InforException e){
@@ -33,11 +36,11 @@ public class WatchersController extends EAMLightController {
         }
     }
 
-    @POST
-    @Path("/{woCode}/watchers")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public Response addWatchersToWorkOrder(@PathParam("woCode") String woCode, List<String> users) {
+    @PostMapping
+    @RequestMapping("/{woCode}/watchers")
+    
+    
+    public ResponseEntity<?> addWatchersToWorkOrder(@PathVariable("woCode") String woCode, List<String> users) {
         try {
             return ok(watchersService.addWatchersToWorkOrder(authenticationTools.getInforContext(),
                     authenticationTools.getR5InforContext(), woCode, users));
@@ -48,11 +51,11 @@ public class WatchersController extends EAMLightController {
         }
     }
 
-    @PUT
-    @Path("/{woCode}/watchers/remove")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public Response removeWatchersFromWorkOrder(@PathParam("woCode") String woCode, List<String> users) {
+    @PutMapping
+    @RequestMapping("/{woCode}/watchers/remove")
+    
+    
+    public ResponseEntity<?> removeWatchersFromWorkOrder(@PathVariable("woCode") String woCode, List<String> users) {
         try {
             return ok(watchersService.removeWatchersFromWorkOrder(authenticationTools.getInforContext(), woCode, users));
         } catch (InforException e){

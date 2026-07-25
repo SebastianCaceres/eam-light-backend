@@ -6,44 +6,47 @@ import ch.cern.cmms.eamlightejb.watchers.WatcherInfo;
 import ch.cern.cmms.eamlightejb.watchers.WatchersService;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
-@Path("/autocomplete")
-@ApplicationScoped
-@Interceptors({ RESTLoggingInterceptor.class })
+@RestController
+@RequestMapping("/autocomplete")
+
 public class AutocompleteUser extends EAMLightController {
 
-    @Inject
+    @Autowired
     private WatchersService watchersService;
 
-    @GET
-    @Path("/users/{code}")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response complete(@PathParam("code") String code) throws InforException {
+    @GetMapping
+    @RequestMapping("/users/{code}")
+    
+    
+    public ResponseEntity<?> complete(@PathVariable("code") String code) throws InforException {
         return ok(watchersService.getAutocompleteOptions(authenticationTools.getR5InforContext(), code));
     }
 
-    @GET
-    @Path("/workorders/{wo}/users/")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response completeFilteredByWOAccess(@QueryParam("hint") String hint, @PathParam("wo") String woCode) {
+    @GetMapping
+    @RequestMapping("/workorders/{wo}/users/")
+    
+    
+    public ResponseEntity<?> completeFilteredByWOAccess(@RequestParam("hint") String hint, @PathVariable("wo") String woCode) {
         final List<WatcherInfo> filteredWatcherInfo = watchersService.getFilteredWatcherInfo(woCode, hint);
         return ok(filteredWatcherInfo);
     }
 
-    @GET
-    @Path("/workorders/{wo}/users/search")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response completeFilteredByWOAccessSearch(@QueryParam("hint") String hint,
-                                                      @PathParam("wo") String woCode) {
+    @GetMapping
+    @RequestMapping("/workorders/{wo}/users/search")
+    
+    
+    public ResponseEntity<?> completeFilteredByWOAccessSearch(@RequestParam("hint") String hint,
+                                                      @PathVariable("wo") String woCode) {
         final List<WatcherInfo> filteredWatcherInfo = watchersService.getFilteredWatcherInfo(woCode, hint);
         return ok(filteredWatcherInfo);
     }

@@ -7,26 +7,29 @@ import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.services.comments.entities.Comment;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Path("/comments")
-@Interceptors({ RESTLoggingInterceptor.class })
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+@RequestMapping("/comments")
+
 public class Comments extends EAMLightController {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
-	@Inject
+	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@GET
-	@Path("/")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response readComments(@QueryParam("entityCode") String entityCode,
-								 @QueryParam("entityKeyCode") String entityKeyCode) {
+	@GetMapping
+	@RequestMapping("/")
+	
+	
+	public ResponseEntity<?> readComments(@RequestParam("entityCode") String entityCode,
+								 @RequestParam("entityKeyCode") String entityKeyCode) {
 		try {
 			return ok(inforClient.getCommentService().readComments(authenticationTools.getInforContext(), entityCode, entityKeyCode, null));
 		} catch (InforException e) {
@@ -36,10 +39,10 @@ public class Comments extends EAMLightController {
 		}
 	}
 
-	@POST
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response createComment(Comment comment) {
+	@PostMapping
+	
+	
+	public ResponseEntity<?> createComment(Comment comment) {
 		try {
 			return ok(inforClient.getCommentService().createComment(authenticationTools.getInforContext(), comment));
 		} catch (InforException e) {
@@ -49,10 +52,10 @@ public class Comments extends EAMLightController {
 		}
 	}
 
-	@PUT
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response updateComment(Comment comment) {
+	@PutMapping
+	
+	
+	public ResponseEntity<?> updateComment(Comment comment) {
 		try {
 			return ok(inforClient.getCommentService().updateComment(authenticationTools.getInforContext(), comment));
 		} catch (InforException e) {

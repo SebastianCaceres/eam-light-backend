@@ -6,25 +6,28 @@ import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.services.workorders.entities.TaskPlan;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.core.Response;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
-@Path("/taskplan")
-@Interceptors({ RESTLoggingInterceptor.class })
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+@RequestMapping("/taskplan")
+
 public class TaskPlanRest extends EAMLightController {
-    @Inject
+    @Autowired
     private InforClient inforClient;
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
 
-    @GET
-    @Path("/{taskcode}")
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response readTaskPlan (@PathParam("taskcode") String taskCode) {
+    @GetMapping
+    @RequestMapping("/{taskcode}")
+    
+    
+    public ResponseEntity<?> readTaskPlan (@PathVariable("taskcode") String taskCode) {
         try {
             TaskPlan taskPlan = new TaskPlan();
             taskPlan.setCode(taskCode);

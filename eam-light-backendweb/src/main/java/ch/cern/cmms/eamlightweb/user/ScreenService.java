@@ -16,8 +16,8 @@ import ch.cern.eam.wshub.core.tools.Tools;
 import com.github.benmanes.caffeine.cache.Cache;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@ApplicationScoped
+@Component
 public class ScreenService implements Cacheable {
 
     private static final String EAM_REPORTS_MENU = "Lists & Reports"; // Possibly a better way of doing this
@@ -34,7 +34,7 @@ public class ScreenService implements Cacheable {
     private final Cache<String, Map<String, ScreenInfo>> screenCache = CacheUtils.buildDefaultCache();
     private final Cache<String, Map<String, List<Map<String, String>>>> reportsCache = CacheUtils.buildDefaultCache();
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
     private List<String> screens;
 

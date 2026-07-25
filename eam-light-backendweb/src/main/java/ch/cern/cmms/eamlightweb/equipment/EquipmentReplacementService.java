@@ -13,8 +13,8 @@ import ch.cern.eam.wshub.core.tools.DataTypeTools;
 import ch.cern.eam.wshub.core.tools.InforException;
 import ch.cern.eam.wshub.core.tools.Tools;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,10 +22,10 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+@Component
 public class EquipmentReplacementService {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
     // Replace Equipment modes

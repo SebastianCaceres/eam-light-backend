@@ -282,6 +282,7 @@ import org.springframework.http.HttpStatus;</value>
 				</configuration>
 			</plugin>
 		</plugins>
+	</build>
 
 	<profiles>
 		<profile>

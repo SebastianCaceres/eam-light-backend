@@ -16,35 +16,37 @@ import net.datastream.schemas.mp_functions.mp0319_001.MP0319_SyncLocation_001;
 import net.datastream.schemas.mp_results.mp0318_001.MP0318_GetLocation_001_Result;
 import net.datastream.schemas.mp_results.mp0319_001.MP0319_SyncLocation_001_Result;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import javax.xml.ws.soap.SOAPFaultException;
 
-@Path("/locations")
-@ApplicationScoped
-@Interceptors({RESTLoggingInterceptor.class})
+@RestController
+@RequestMapping("/locations")
+
 public class LocationRest extends EAMLightNativeRestController {
 
-    @Inject
+    @Autowired
     private AuthenticationTools authenticationTools;
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
-    @GET
-    @Path("/{location}")
-    @Produces("application/json")
-    public Response readLocation(@PathParam("location") String location) {
+    @GetMapping
+    @RequestMapping("/{location}")
+    
+    public ResponseEntity<?> readLocation(@PathVariable("location") String location) {
         try {
             MP0318_GetLocation_001 getLocation = new MP0318_GetLocation_001();
             getLocation.setLOCATIONID(new LOCATIONID_Type());
@@ -62,10 +64,10 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @POST
-    @Path("/")
-    @Produces("application/json")
-    public Response createLocation(Location location) {
+    @PostMapping
+    @RequestMapping("/")
+    
+    public ResponseEntity<?> createLocation(Location location) {
         try {
             return ok(inforClient.getLocationService().createLocation(authenticationTools.getInforContext(), location));
         } catch (SOAPFaultException e) {
@@ -75,11 +77,11 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @PUT
-    @Path("/")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public Response updateLocation(net.datastream.schemas.mp_entities.location_001.Location location) {
+    @PutMapping
+    @RequestMapping("/")
+    
+    
+    public ResponseEntity<?> updateLocation(net.datastream.schemas.mp_entities.location_001.Location location) {
         try {
             MP0319_SyncLocation_001 syncLocation = new MP0319_SyncLocation_001();
             syncLocation.setLocation(location);
@@ -92,10 +94,10 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @DELETE
-    @Path("/{locationCode : .+}")
-    @Produces("application/json")
-    public Response deleteLocation(@PathParam("locationCode") String locationCode) {
+    @DeleteMapping
+    @RequestMapping("/{locationCode : .+}")
+    
+    public ResponseEntity<?> deleteLocation(@PathVariable("locationCode") String locationCode) {
         try {
             return ok(inforClient.getLocationService().deleteLocation(authenticationTools.getInforContext(), locationCode));
         } catch (InforException e) {
@@ -105,10 +107,10 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @GET
-    @Path("/init")
-    @Produces("application/json")
-    public Response initLocation() {
+    @GetMapping
+    @RequestMapping("/init")
+    
+    public ResponseEntity<?> initLocation() {
         try {
             Location location = new Location();
             location.setUserDefinedFields(new UserDefinedFields());
