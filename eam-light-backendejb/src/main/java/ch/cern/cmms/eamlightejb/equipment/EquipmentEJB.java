@@ -1,5 +1,7 @@
 package ch.cern.cmms.eamlightejb.equipment;
 
+import ch.cern.cmms.eamlightejb.equipment.repository.EquipmentChildrenRepository;
+import ch.cern.cmms.eamlightejb.equipment.repository.EquipmentTreeNodeRepository;
 import ch.cern.cmms.eamlightejb.equipment.tools.GraphNode;
 import ch.cern.cmms.eamlightejb.index.IndexEJB;
 import ch.cern.cmms.eamlightejb.index.IndexGrids;
@@ -26,6 +28,12 @@ public class EquipmentEJB {
 	@Autowired
 	private IndexGrids indexGrids;
 
+	@Autowired
+	private EquipmentChildrenRepository equipmentChildrenRepository;
+
+	@Autowired
+	private EquipmentTreeNodeRepository equipmentTreeNodeRepository;
+
 	/**
 	 * Default constructor.
 	 */
@@ -34,8 +42,7 @@ public class EquipmentEJB {
 	}
 
 	public List<EquipmentChildren> getEquipmentChildren(String equipment) {
-		return inforClient.getTools().getEntityManager().createNamedQuery(EquipmentChildren.GET_EQUIPMENT_CHILDREN, EquipmentChildren.class)
-				.setParameter("equipment", equipment).getResultList();
+		return equipmentChildrenRepository.getEquipmentChildren(equipment);
 	}
 
 	public List<Entity> getEquipmentSearchResults(String code, List<String> customEntityTypes, InforContext inforContext) throws InforException {
@@ -68,11 +75,11 @@ public class EquipmentEJB {
 		}
 
 		// Fetch tree as list
-		List<EquipmentTreeNode> result = inforClient.getTools().getEntityManager()
-				.createNamedQuery(EquipmentTreeNode.GET_TREE, EquipmentTreeNode.class)
-				.setParameter("equipment", equipment)
-				.getResultList()
-				;
+		List<EquipmentTreeNode> result = equipmentTreeNodeRepository.getTree(equipment);
+
+		if (result.isEmpty()) {
+			return new LinkedList<>();
+		}
 
 		// Remove root node since its parent is not included
 		EquipmentTreeNode rootTreeNode = result.remove(0);
@@ -97,14 +104,9 @@ public class EquipmentEJB {
 			);
 		}
 
-
 		// Fetch root parents if not a location
 		if(!"L".equals(rootNode.getType())) {
-			List<EquipmentChildren> parents = inforClient.getTools().getEntityManager()
-					.createNamedQuery(EquipmentChildren.GET_EQUIPMENT_PARENTS, EquipmentChildren.class)
-					.setParameter("equipment", equipment)
-					.getResultList()
-					;
+			List<EquipmentChildren> parents = equipmentChildrenRepository.getEquipmentParents(equipment);
 			rootNode.setParents(parents);
 		}
 
