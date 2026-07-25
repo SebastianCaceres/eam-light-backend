@@ -9,57 +9,41 @@ import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.CDI;
-import javax.inject.Inject;
-import javax.naming.Context;
-import javax.naming.InitialContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.logging.Logger;
 
-@ApplicationScoped
+@Configuration
 public class InforClientProducer {
 
-    @Produces
-    private InforClient inforClient;
-    @Resource
-    private ManagedExecutorService executorService;
-
-    @Inject
+    @Autowired
     private ApplicationData applicationData;
 
-    @Inject
+    @Autowired
     private ExternalCache externalCache;
 
-    @PostConstruct
-    public void init() {
-        EntityManagerFactory entityManagerFactory = null;
-        DataSource dataSource = null;
-        InforInterceptor inforInterceptor = null;
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
 
-        try {
-            Context context = new InitialContext();
-            entityManagerFactory = (EntityManagerFactory) context.lookup("java:jboss/eamLightEntityManagerFactory");
-            dataSource = (DataSource) context.lookup("java:/datasources/asbmgrDS");
-            inforInterceptor = CDI.current().select(InforInterceptor.class).get();
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    @Autowired
+    private DataSource dataSource;
 
+    @Autowired(required = false)
+    private InforInterceptor inforInterceptor;
+
+    @Bean
+    public InforClient inforClient() {
         try {
             // Build the Infor Client
-            inforClient = new InforClient.Builder(Tools.getVariableValue("EAMLIGHT_INFOR_WS_URL"))
+            InforClient inforClient = new InforClient.Builder(Tools.getVariableValue("EAMLIGHT_INFOR_WS_URL"))
                     .withDefaultTenant(Tools.getVariableValue("EAMLIGHT_INFOR_TENANT"))
                     .withDefaultOrganizationCode(Tools.getVariableValue("EAMLIGHT_INFOR_ORGANIZATION"))
                     .withSOAPHandlerResolver(new SOAPHandlerResolver())
                     .withDataSource(dataSource)
                     .withEntityManagerFactory(entityManagerFactory)
-                    .withExecutorService(executorService)
                     .withInforInterceptor(inforInterceptor)
                     .withLogger(Logger.getLogger("wshublogger"))
                     .withCache(externalCache.getCacheMap())
@@ -74,11 +58,12 @@ public class InforClientProducer {
             }
             HTTPClientPolicy client = conduit.getClient();
             client.setAllowChunking(false);
+            return inforClient;
         } catch (Exception exception) {
             System.out.println("Infor Client could not be initialized: " + exception.getMessage());
             exception.printStackTrace();
+            throw new IllegalStateException("Failed to initialize InforClient", exception);
         }
-
     }
 
 }

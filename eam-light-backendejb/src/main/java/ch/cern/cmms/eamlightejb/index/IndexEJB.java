@@ -11,19 +11,17 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import javax.persistence.NoResultException;
 
 /**
  * Session Bean implementation class IndexEJB
  */
-@Stateless
-@LocalBean
+@Service
 public class IndexEJB {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
     //

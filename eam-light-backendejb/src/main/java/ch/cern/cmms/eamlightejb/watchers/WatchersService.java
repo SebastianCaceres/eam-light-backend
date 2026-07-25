@@ -9,16 +9,16 @@ import ch.cern.eam.wshub.core.services.userdefinedscreens.entities.UDTRow;
 import ch.cern.eam.wshub.core.tools.GridTools;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+@Service
 public class WatchersService {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
     private List<Map<String, String>> getAutocompleteOptions(String code, InforContext r5Context) throws InforException {

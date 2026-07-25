@@ -2,10 +2,10 @@ package ch.cern.cmms.eamlightejb.data;
 
 import ch.cern.cmms.eamlightejb.tools.Tools;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.springframework.stereotype.Component;
 import java.util.Objects;
 
-@ApplicationScoped
+@Component
 public class ApplicationData {
 
     public static final Integer AUTOCOMPLETE_RESULT_SIZE = 10;

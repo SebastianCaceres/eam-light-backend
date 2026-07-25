@@ -9,16 +9,14 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 
-@Stateless
-@LocalBean
+@Service
 public class MonitoringService {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
     private String EQUIPMENT_CODE = "TEST_MONITORING";

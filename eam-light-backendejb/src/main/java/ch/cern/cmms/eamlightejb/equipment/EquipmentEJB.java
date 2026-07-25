@@ -9,23 +9,21 @@ import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.services.entities.Entity;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Stateless
-@LocalBean
+@Service
 public class EquipmentEJB {
 
-	@Inject
+	@Autowired
 	private InforClient inforClient;
 
-	@Inject
+	@Autowired
 	private IndexEJB indexEJB;
 
-	@Inject
+	@Autowired
 	private IndexGrids indexGrids;
 
 	/**

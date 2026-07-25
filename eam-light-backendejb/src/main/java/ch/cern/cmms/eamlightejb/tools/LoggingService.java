@@ -1,10 +1,10 @@
 package ch.cern.cmms.eamlightejb.tools;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import org.springframework.stereotype.Service;
 import org.jboss.logging.Logger.Level;
 
-@ApplicationScoped
+@Service
 public class LoggingService {
 
 	private org.jboss.logging.Logger logger;

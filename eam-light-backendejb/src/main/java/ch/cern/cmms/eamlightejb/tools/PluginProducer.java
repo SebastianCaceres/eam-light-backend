@@ -6,28 +6,25 @@ import ch.cern.cmms.plugins.LDAPPluginImpl;
 import ch.cern.cmms.plugins.SharedPlugin;
 import ch.cern.cmms.plugins.SharedPluginImpl;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@ApplicationScoped
+@Configuration
 public class PluginProducer {
-    @Produces
-    private SharedPlugin sharedPlugin;
 
-    @Produces
-    private LDAPPlugin ldapPlugin;
-
-    @Inject
+    @Autowired
     private ApplicationData applicationData;
 
-    @PostConstruct
-    public void init() {
-        sharedPlugin = new SharedPluginImpl();
+    @Bean
+    public SharedPlugin sharedPlugin() {
+        return new SharedPluginImpl();
+    }
 
+    @Bean
+    public LDAPPlugin ldapPlugin() {
         LDAPPlugin ldapPlugin = new LDAPPluginImpl();
         ldapPlugin.init(applicationData.getLDAPServer(), applicationData.getLDAPPort());
-        this.ldapPlugin = ldapPlugin;
+        return ldapPlugin;
     }
 }

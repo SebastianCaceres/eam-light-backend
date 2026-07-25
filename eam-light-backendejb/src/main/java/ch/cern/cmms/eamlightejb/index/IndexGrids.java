@@ -7,16 +7,16 @@ import ch.cern.eam.wshub.core.services.grids.entities.GridRequestFilter;
 import ch.cern.eam.wshub.core.tools.GridTools;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 import static ch.cern.eam.wshub.core.tools.DataTypeTools.isNotEmpty;
 
-@ApplicationScoped
+@Component
 public class IndexGrids {
 
-    @Inject
+    @Autowired
     private InforClient inforClient;
 
     private List<IndexResult> searchWorkOrders(InforContext inforContext, String keyword, String operator) {
