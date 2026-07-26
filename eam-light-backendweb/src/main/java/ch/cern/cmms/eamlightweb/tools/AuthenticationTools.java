@@ -17,7 +17,7 @@ import ch.cern.eam.wshub.core.tools.InforException;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 
-import javax.enterprise.context.RequestScoped;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ import java.util.Set;
 import static ch.cern.eam.wshub.core.tools.DataTypeTools.isEmpty;
 import static ch.cern.eam.wshub.core.tools.DataTypeTools.isNotEmpty;
 
-@RequestScoped
+@RequestScope
 public class AuthenticationTools {
     public enum Mode {
         ALL,

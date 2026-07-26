@@ -6,7 +6,6 @@ import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
-import javax.ejb.EJB;
 import org.springframework.beans.factory.annotation.Autowired;
 
 

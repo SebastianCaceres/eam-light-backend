@@ -1,8 +1,8 @@
 package ch.cern.cmms.standardworkorders;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.springframework.stereotype.Component;
 
-@ApplicationScoped
+@Component
 public class MTFWorkOrderServiceImpl implements MTFWorkOrderService {
 
     @Override

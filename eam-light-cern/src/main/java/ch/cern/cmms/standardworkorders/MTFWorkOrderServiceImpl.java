@@ -2,13 +2,13 @@ package ch.cern.cmms.standardworkorders;
 
 import ch.cern.eam.wshub.core.client.InforClient;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@ApplicationScoped
+@Component
 public class MTFWorkOrderServiceImpl implements MTFWorkOrderService {
 
-    @Inject
+    @Autowired
     InforClient inforClient;
 
     @Override

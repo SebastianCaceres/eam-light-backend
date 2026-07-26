@@ -9,7 +9,6 @@ import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
 
-import javax.ejb.EJB;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
@@ -20,7 +19,7 @@ import java.util.logging.Level;
 @Component
 public class EquipmentStructure
 {
-    @EJB
+    @Autowired
     private EquipmentEJB equipmentEJB;
     @Autowired
     private AuthenticationTools authenticationTools;

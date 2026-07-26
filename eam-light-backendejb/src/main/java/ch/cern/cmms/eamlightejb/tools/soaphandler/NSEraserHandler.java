@@ -1,6 +1,5 @@
 package ch.cern.cmms.eamlightejb.tools.soaphandler;
 
-import javax.enterprise.context.Dependent;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.ws.handler.MessageContext;
@@ -14,7 +13,6 @@ import java.util.Set;
 /**
  * Remove redundant namespaces in the Infor WS requests
  */
-@Dependent
 public class NSEraserHandler implements SOAPHandler<SOAPMessageContext> {
 
 	@Override

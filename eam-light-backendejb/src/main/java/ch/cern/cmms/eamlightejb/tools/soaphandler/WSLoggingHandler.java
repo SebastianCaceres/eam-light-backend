@@ -3,7 +3,6 @@ package ch.cern.cmms.eamlightejb.tools.soaphandler;
 import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 
-import javax.enterprise.context.Dependent;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPMessage;
@@ -16,7 +15,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-@Dependent
 public class WSLoggingHandler implements SOAPHandler<SOAPMessageContext> {
 
 	Pattern regex = null;
