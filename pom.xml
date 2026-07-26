@@ -13,10 +13,10 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>eam-wshub-core</module>
 		<module>eam-light-backendweb</module>
 		<module>eam-light-backendejb</module>
 		<module>eam-light-interfaces</module>
-		<module>eam-wshub-core</module>
 	</modules>
 
 	<properties>
@@ -44,6 +44,16 @@
 		</dependency>
 
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>ch.cern.eam</groupId>
+				<artifactId>eam-wshub-core</artifactId>
+				<version>${ch.cern.eam.eam-wshub-core.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
