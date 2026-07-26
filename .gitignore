@@ -44,3 +44,4 @@ eam-light-cern/target
 #IntelliJ
 .idea/
 eam-light-backend.iml
+/.brain/

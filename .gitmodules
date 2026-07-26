@@ -1,0 +1,3 @@
+[submodule "eam-wshub-core"]
+	path = eam-wshub-core
+	url = https://github.com/SebastianCaceres/eam-wshub-core.git
