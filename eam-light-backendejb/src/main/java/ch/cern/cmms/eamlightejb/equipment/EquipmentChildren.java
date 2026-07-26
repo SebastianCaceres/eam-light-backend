@@ -32,6 +32,7 @@ import javax.persistence.*;
 				+ " DECODE(STC_ROLLDOWN,'+','true','false') STC_ROLLDOWN, DECODE(STC_ROLLUP,'+','true','false') STC_ROLLUP"
 				+ " FROM R5STRUCTURES WHERE STC_CHILD = :equipment", 
 				resultClass = EquipmentChildren.class)})
+@IdClass(EquipmentChildrenId.class)
 public class EquipmentChildren implements Serializable {
 
 	public final static String GET_EQUIPMENT_CHILDREN = "EquipmentChildren.GET_EQUIPMENT_CHILDREN";

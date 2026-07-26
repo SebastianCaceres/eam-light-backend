@@ -3,7 +3,6 @@ package ch.cern.cmms.eamlightweb.workorders.partusage;
 import ch.cern.cmms.eamlightweb.application.ApplicationService;
 import ch.cern.cmms.eamlightweb.tools.AuthenticationTools;
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
-import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.cmms.plugins.SharedPlugin;
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.client.InforContext;
@@ -14,29 +13,21 @@ import ch.cern.eam.wshub.core.services.material.entities.IssueReturnPartTransact
 import ch.cern.eam.wshub.core.services.material.entities.IssueReturnPartTransactionLine;
 import ch.cern.eam.wshub.core.services.material.entities.IssueReturnPartTransactionType;
 import ch.cern.eam.wshub.core.services.workorders.entities.Activity;
-import ch.cern.eam.wshub.core.services.workorders.entities.WorkOrder;
+import ch.cern.cmms.eamlightejb.entities.WorkOrder;
 import ch.cern.eam.wshub.core.tools.GridTools;
 import ch.cern.eam.wshub.core.tools.InforException;
-
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import static ch.cern.eam.wshub.core.tools.Tools.extractEntityCode;
 import static ch.cern.eam.wshub.core.tools.Tools.extractOrganizationCode;
 
 @RestController
 @RequestMapping("/partusage")
-
 public class PartUsageRest extends EAMLightController {
 
 	@Autowired
@@ -48,31 +39,35 @@ public class PartUsageRest extends EAMLightController {
 	@Autowired
 	private ApplicationService applicationService;
 
-	@GetMapping
-	@RequestMapping("/bins")
-	
-	
+	@GetMapping("/bins")
 	public ResponseEntity<?> loadBinList(@RequestParam("transaction") String transaction, @RequestParam("bin") String bin,
 								@RequestParam("part") String part, @RequestParam("store") String store) {
 		try {
 			GridRequest gridRequest;
 			if (transaction.startsWith("I")) {
 				// ISSUE
-				gridRequest = new GridRequest("LVISSUEBIN", GridRequest.GRIDTYPE.LOV);
+				gridRequest = new GridRequest("LVISSBIN", GridRequest.GRIDTYPE.LOV);
+				gridRequest.addParam("part_code", extractEntityCode(part));
+				gridRequest.addParam("part_org", inforClient.getTools().getOrganizationCode(authenticationTools.getInforContext(), extractOrganizationCode(part)));
+				gridRequest.addParam("store_code", store);
 				if (bin != null && !bin.isEmpty()) {
-					gridRequest.addFilter("bincode", bin, "BEGINS");
+					gridRequest.addFilter("bincode", bin.toUpperCase(), "BEGINS");
 				}
 			} else {
 				// RETURN
-				gridRequest = new GridRequest("LVRETURNBIN");
+				gridRequest = new GridRequest("LVRETBIN", GridRequest.GRIDTYPE.LOV);
+				gridRequest.addParam("part_code", extractEntityCode(part));
+				gridRequest.addParam("part_org", inforClient.getTools().getOrganizationCode(authenticationTools.getInforContext(), extractOrganizationCode(part)));
+				gridRequest.addParam("store_code", store);
+				if (bin != null && !bin.isEmpty()) {
+					gridRequest.addFilter("bincode", bin.toUpperCase(), "BEGINS");
+				}
 			}
-			gridRequest.addParam("part_code", extractEntityCode(part));
-			gridRequest.addParam("part_org", inforClient.getTools().getOrganizationCode(authenticationTools.getInforContext(), extractOrganizationCode(part)));
-			gridRequest.addParam("store_code", store);
 
 			return ok(GridTools.convertGridResultToObject(Pair.class,
-					Pair.generateGridPairMap("830", "824"),
-					inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest)));
+					  Pair.generateGridPairMap("825", "2175"),
+					  inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest)));
+
 		} catch (InforException e) {
 			return badRequest(e);
 		} catch(Exception e) {
@@ -80,10 +75,7 @@ public class PartUsageRest extends EAMLightController {
 		}
 	}
 
-	@GetMapping
-	@RequestMapping("/lots/issue")
-	
-	
+	@GetMapping("/lots/issue")
 	public ResponseEntity<?> loadLotListIssue(@RequestParam("lot") String lot, @RequestParam("bin") String bin,
 									 @RequestParam("part") String part, @RequestParam("store") String store,
 									 @RequestParam("requireAvailableQty") boolean requireAvailableQty) {
@@ -117,10 +109,7 @@ public class PartUsageRest extends EAMLightController {
 		}
 	}
 
-	@GetMapping
-	@RequestMapping("/lots/return")
-	
-	
+	@GetMapping("/lots/return")
 	public ResponseEntity<?> loadLotListReturn(@RequestParam("lot") String lot, @RequestParam("part") String part) {
 		try {
 			GridRequest gridRequest;
@@ -152,11 +141,8 @@ public class PartUsageRest extends EAMLightController {
 		}
 	}
 
-	@PostMapping
-	@RequestMapping("/transaction")
-	
-	
-	public ResponseEntity<?> createPartUsage(IssueReturnPartTransaction transaction) {
+	@PostMapping("/transaction")
+	public ResponseEntity<?> createPartUsage(@RequestBody IssueReturnPartTransaction transaction) {
 		try {
 			transaction.setTransactionOn(IssueReturnPartTransactionType.WORKORDER);
 			return ok(inforClient.getPartMiscService().createIssueReturnTransaction(authenticationTools.getInforContext(), transaction));
@@ -167,12 +153,8 @@ public class PartUsageRest extends EAMLightController {
 		}
 	}
 
-
-	@PostMapping
-	@RequestMapping("/init")
-	
-	
-	public ResponseEntity<?> initPartUsage(WorkOrder workOrder) {
+	@PostMapping("/init")
+	public ResponseEntity<?> initPartUsage(@RequestBody WorkOrder workOrder) {
 		try {
 			// Create the issue/return transacction for the workOrder
 			IssueReturnPartTransaction transaction = createTransaction(workOrder);
@@ -187,7 +169,6 @@ public class PartUsageRest extends EAMLightController {
 			return serverError(e);
 		}
 	}
-
 
 	/**
 	 * Creates the transaction line that is going to be added to the transaction

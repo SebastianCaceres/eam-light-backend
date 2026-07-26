@@ -2,8 +2,9 @@ package ch.cern.cmms.eamlightejb.MonitoringService;
 
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.client.InforContext;
-import ch.cern.eam.wshub.core.services.equipment.entities.Equipment;
-import ch.cern.eam.wshub.core.services.workorders.entities.WorkOrder;
+import ch.cern.cmms.eamlightejb.entities.Equipment;
+import ch.cern.cmms.eamlightejb.entities.WorkOrder;
+import ch.cern.cmms.eamlightejb.entities.EamDtoMapper;
 import ch.cern.eam.wshub.core.tools.InforException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class MonitoringService {
             equipmentForUpdate.setCode(EQUIPMENT_CODE);
             equipmentForUpdate.setDescription("MONITORING ASSET / " + getCurrentDate());
 
-            inforClient.getEquipmentFacadeService().updateEquipment(inforContext, equipmentForUpdate);
+            inforClient.getEquipmentFacadeService().updateEquipment(inforContext, EamDtoMapper.map(equipmentForUpdate));
             String result =
                 inforClient.getEquipmentFacadeService().readEquipment(inforContext, equipmentForUpdate.getCode())
                     .toString();
@@ -57,7 +58,7 @@ public class MonitoringService {
             workOrderForUpdate.setNumber(WORKORDER_CODE);
             workOrderForUpdate.setDescription("MONITORING WO / " + getCurrentDate());
 
-            inforClient.getWorkOrderService().updateWorkOrder(inforContext, workOrderForUpdate);
+            inforClient.getWorkOrderService().updateWorkOrder(inforContext, EamDtoMapper.map(workOrderForUpdate));
             String result =
                 inforClient.getWorkOrderService().readWorkOrder(inforContext, workOrderForUpdate.getNumber())
                     .toString();

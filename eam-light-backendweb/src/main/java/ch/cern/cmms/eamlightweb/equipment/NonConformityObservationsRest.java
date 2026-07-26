@@ -2,27 +2,19 @@ package ch.cern.cmms.eamlightweb.equipment;
 
 import ch.cern.cmms.eamlightweb.tools.AuthenticationTools;
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
-import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.services.equipment.entities.NonConformityObservation;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
-
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/ncrobservations")
-
 public class NonConformityObservationsRest extends EAMLightController {
 
     @Autowired
@@ -30,10 +22,7 @@ public class NonConformityObservationsRest extends EAMLightController {
     @Autowired
     private AuthenticationTools authenticationTools;
 
-    @GetMapping
-    @RequestMapping("/{ncr}")
-    
-    
+    @GetMapping("/{ncr}")
     public ResponseEntity<?> loadNonConformityObservations(@PathVariable("ncr") String ncr) {
         try {
             List<Map<String, String>> additionalCostsList = new ArrayList<>();
@@ -57,10 +46,7 @@ public class NonConformityObservationsRest extends EAMLightController {
     }
 
     @PostMapping
-    @RequestMapping("/")
-    
-    
-    public ResponseEntity<?> createNonConformityObservation(NonConformityObservation nonConformityObservation) {
+    public ResponseEntity<?> createNonConformityObservation(@RequestBody NonConformityObservation nonConformityObservation) {
         try {
             return ok(inforClient.getNonConformityObservationService().createNonConformityObservation(authenticationTools.getInforContext(), nonConformityObservation));
         } catch (InforException e) {

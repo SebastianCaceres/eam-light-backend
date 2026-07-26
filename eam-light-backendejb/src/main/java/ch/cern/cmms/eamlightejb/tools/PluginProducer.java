@@ -22,6 +22,11 @@ public class PluginProducer {
     }
 
     @Bean
+    public ch.cern.cmms.standardworkorders.MTFWorkOrderServiceImpl mtfStandardWorkOrderService() {
+        return new ch.cern.cmms.standardworkorders.MTFWorkOrderServiceImpl();
+    }
+
+    @Bean
     public LDAPPlugin ldapPlugin() {
         LDAPPlugin ldapPlugin = new LDAPPluginImpl();
         ldapPlugin.init(applicationData.getLDAPServer(), applicationData.getLDAPPort());

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.Transient;
@@ -110,6 +111,7 @@ import javax.persistence.Transient;
             "WHERE ROWNUM < 20000", // LIMIT FOR MEMORY
             resultClass = EquipmentTreeNode.class),
 })
+@IdClass(EquipmentTreeNodeId.class)
 public class EquipmentTreeNode implements Serializable {
 
     public final static String GET_TREE = "EquipmentChildren.GET_TREE";

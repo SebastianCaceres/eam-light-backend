@@ -3,7 +3,8 @@ package ch.cern.cmms.eamlightweb.equipment;
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.services.entities.BatchSingleResponse;
-import ch.cern.eam.wshub.core.services.equipment.entities.Equipment;
+import ch.cern.cmms.eamlightejb.entities.Equipment;
+import ch.cern.cmms.eamlightejb.entities.EamDtoMapper;
 import ch.cern.eam.wshub.core.services.equipment.entities.EquipmentReplacement;
 import ch.cern.eam.wshub.core.services.equipment.entities.EquipmentStructure;
 import ch.cern.eam.wshub.core.services.material.entities.IssueReturnPartTransaction;
@@ -50,8 +51,8 @@ public class EquipmentReplacementService {
         if (!STANDARD.equals(replacement.getReplacementMode()) && !SWAPPING.equals(replacement.getReplacementMode()))
             throw Tools.generateFault("Invalid Replacement Mode. Valid values: [Standard, Swapping]");
         // Read both equipments to see that are valid codes
-        Equipment oldEquipment = inforClient.getAssetService().readAsset(inforContext, replacement.getOldEquipment(), null);
-        Equipment newEquipment = inforClient.getAssetService().readAsset(inforContext, replacement.getNewEquipment(), null);
+        Equipment oldEquipment = EamDtoMapper.map(inforClient.getAssetService().readAsset(inforContext, replacement.getOldEquipment(), null));
+        Equipment newEquipment = EamDtoMapper.map(inforClient.getAssetService().readAsset(inforContext, replacement.getNewEquipment(), null));
         // If status is not provided, it will assign the current status
         if (DataTypeTools.isEmpty(replacement.getNewEquipmentStatus()))
             replacement.setNewEquipmentStatus(newEquipment.getStatusCode());
@@ -96,7 +97,7 @@ public class EquipmentReplacementService {
         if (!replacement.getNewEquipmentStatus().equals(newEquipment.getStatusCode())) {
             toUpdate.setCode(newEquipment.getCode());
             toUpdate.setStatusCode(replacement.getNewEquipmentStatus());
-            inforClient.getAssetService().updateAsset(inforContext, toUpdate);
+            inforClient.getAssetService().updateAsset(inforContext, EamDtoMapper.map(toUpdate));
         }
 
         // Parents and children for the old equipment
@@ -174,7 +175,7 @@ public class EquipmentReplacementService {
         if (!replacement.getOldEquipmentStatus().equals(oldEquipment.getStatusCode())) {
             toUpdate.setCode(oldEquipment.getCode());
             toUpdate.setStatusCode(replacement.getOldEquipmentStatus());
-            inforClient.getAssetService().updateAsset(inforContext, toUpdate);
+            inforClient.getAssetService().updateAsset(inforContext, EamDtoMapper.map(toUpdate));
         }
 
         // Finish ok
@@ -182,7 +183,7 @@ public class EquipmentReplacementService {
     }
 
     public Map<String, String> collectDetachableEquipment(InforContext inforContext, String oldEquipmentCode) throws InforException {
-        Equipment oldEquipment = inforClient.getAssetService().readAsset(inforContext, oldEquipmentCode, null);
+        Equipment oldEquipment = EamDtoMapper.map(inforClient.getAssetService().readAsset(inforContext, oldEquipmentCode, null));
         return detachOrCollectDependentChildrenFromPositions(inforContext, oldEquipment, false);
     }
 
@@ -255,6 +256,7 @@ public class EquipmentReplacementService {
                 .getResponseList()
                 .stream()
                 .map(BatchSingleResponse::getResponse)
+                .map(EamDtoMapper::map)
                 .collect(Collectors.toList());
     }
 
@@ -288,7 +290,7 @@ public class EquipmentReplacementService {
             if (!replacement.getNewEquipmentStatus().equals(newEquipment.getStatusCode())) {
                 toUpdate.setCode(newEquipment.getCode());
                 toUpdate.setStatusCode(replacement.getNewEquipmentStatus());
-                inforClient.getAssetService().updateAsset(inforContext, toUpdate);
+                inforClient.getAssetService().updateAsset(inforContext, EamDtoMapper.map(toUpdate));
             }
         }
 
@@ -371,7 +373,7 @@ public class EquipmentReplacementService {
             toUpdate.setStatusCode(replacement.getOldEquipmentStatus());
             toUpdate.setStateCode(replacement.getOldEquipmentState());
             System.out.println("Updating status for Equipment: " + toUpdate);
-            inforClient.getAssetService().updateAsset(inforContext, toUpdate);
+            inforClient.getAssetService().updateAsset(inforContext, EamDtoMapper.map(toUpdate));
         }
 
         // Finish ok

@@ -19,6 +19,9 @@ public class IndexGrids {
     @Autowired
     private InforClient inforClient;
 
+    @Autowired
+    private ch.cern.cmms.eamlightejb.grid.EamGridService eamGridService;
+
     private List<IndexResult> searchWorkOrders(InforContext inforContext, String keyword, String operator) {
         return searchWorkOrders(inforContext, keyword, operator, null);
     }
@@ -36,7 +39,7 @@ public class IndexGrids {
             if (rowCount != null) gridRequest.setRowCount(rowCount);
             List<IndexResult> result = GridTools.convertGridResultToObject(IndexResult.class,
                     map,
-                    inforClient.getGridsService().executeQuery(inforContext, gridRequest));
+                    eamGridService.executeQuery(inforContext, gridRequest));
             result.forEach(indexResult -> indexResult.setType("JOB"));
             return result;
         } catch (Exception exception) {
@@ -82,7 +85,7 @@ public class IndexGrids {
             //gridRequest.addFilter("udfchar45", keyword, operator, GridRequestFilter.JOINER.OR);
             List<IndexResult> result = GridTools.convertGridResultToObject(IndexResult.class,
                     map,
-                    inforClient.getGridsService().executeQuery(inforContext, gridRequest));
+                    eamGridService.executeQuery(inforContext, gridRequest));
             result.forEach(indexResult -> indexResult.setType(type));
             return result;
         } catch (Exception exception) {
@@ -109,7 +112,7 @@ public class IndexGrids {
             if (rowCount != null) gridRequest.setRowCount(rowCount);
             List<IndexResult> result = GridTools.convertGridResultToObject(IndexResult.class,
                     map,
-                    inforClient.getGridsService().executeQuery(inforContext, gridRequest));
+                    eamGridService.executeQuery(inforContext, gridRequest));
             result.forEach(indexResult -> indexResult.setType("PART"));
             return result;
         } catch (Exception exception) {

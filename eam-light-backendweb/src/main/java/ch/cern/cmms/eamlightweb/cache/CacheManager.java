@@ -3,7 +3,6 @@ package ch.cern.cmms.eamlightweb.cache;
 import ch.cern.cmms.eamlightejb.cache.Cacheable;
 
 import org.springframework.stereotype.Component;
-import javax.enterprise.inject.Instance;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class CacheManager {
 
     @Autowired
-    private Instance<Cacheable> cacheables; // TODO only external service :(
+    private List<Cacheable> cacheables; // TODO only external service :(
 
     public void clearAllCaches() {
         cacheables.forEach(Cacheable::clearCache);

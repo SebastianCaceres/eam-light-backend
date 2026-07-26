@@ -36,12 +36,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.logging</groupId>
-			<artifactId>jboss-logging</artifactId>
-			<version>3.1.4.GA</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>ch.cern.eam</groupId>
 			<artifactId>eam-wshub-core</artifactId>
 			<version>${ch.cern.eam.eam-wshub-core.version}</version>

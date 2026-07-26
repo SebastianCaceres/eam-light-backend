@@ -24,6 +24,8 @@ public class EAMLightController {
     protected AuthenticationTools authenticationTools;
     @Autowired
     protected InforClient inforClient;
+    @Autowired
+    protected ch.cern.cmms.eamlightejb.grid.EamGridService eamGridService;
 
     /**
      * Return an object included within the standard WS Hub response, with a OK (200) HTTP status
@@ -99,7 +101,7 @@ public class EAMLightController {
 
     public ResponseEntity<?> getMapListResponse(GridRequest gridRequest, String codeKey, String descKey) {
         try {
-            final GridRequestResult gridRequestResult = inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest);
+            final GridRequestResult gridRequestResult = eamGridService.executeQuery(authenticationTools.getInforContext(), gridRequest);
             final List<Map<String, String>> maps = GridTools.convertGridResultToMapList(gridRequestResult);
             final List<LinkedHashMap<String, String>> collect = maps.stream().map(s -> {
                     LinkedHashMap<String, String> cloneMap = new LinkedHashMap<>();

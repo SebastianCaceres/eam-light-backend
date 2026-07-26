@@ -2,39 +2,25 @@ package ch.cern.cmms.eamlightweb.location;
 
 import ch.cern.cmms.eamlightweb.tools.AuthenticationTools;
 import ch.cern.cmms.eamlightweb.tools.EAMLightNativeRestController;
-import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.services.entities.UserDefinedFields;
 import ch.cern.eam.wshub.core.services.equipment.entities.Location;
 import ch.cern.eam.wshub.core.tools.InforException;
 import static ch.cern.eam.wshub.core.tools.Tools.extractEntityCode;
 import static ch.cern.eam.wshub.core.tools.Tools.extractOrganizationCode;
-import net.datastream.schemas.mp_fields.LOCATIONID_Type;
-import net.datastream.schemas.mp_fields.ORGANIZATIONID_Type;
 import net.datastream.schemas.mp_functions.mp0318_001.MP0318_GetLocation_001;
 import net.datastream.schemas.mp_functions.mp0319_001.MP0319_SyncLocation_001;
 import net.datastream.schemas.mp_results.mp0318_001.MP0318_GetLocation_001_Result;
 import net.datastream.schemas.mp_results.mp0319_001.MP0319_SyncLocation_001_Result;
-
-import org.springframework.stereotype.Component;
+import net.datastream.schemas.mp_fields.LOCATIONID_Type;
+import net.datastream.schemas.mp_fields.ORGANIZATIONID_Type;
 import org.springframework.beans.factory.annotation.Autowired;
-
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import javax.xml.ws.soap.SOAPFaultException;
 
 @RestController
 @RequestMapping("/locations")
-
 public class LocationRest extends EAMLightNativeRestController {
 
     @Autowired
@@ -43,9 +29,7 @@ public class LocationRest extends EAMLightNativeRestController {
     @Autowired
     private InforClient inforClient;
 
-    @GetMapping
-    @RequestMapping("/{location}")
-    
+    @GetMapping("/{location}")
     public ResponseEntity<?> readLocation(@PathVariable("location") String location) {
         try {
             MP0318_GetLocation_001 getLocation = new MP0318_GetLocation_001();
@@ -65,9 +49,7 @@ public class LocationRest extends EAMLightNativeRestController {
     }
 
     @PostMapping
-    @RequestMapping("/")
-    
-    public ResponseEntity<?> createLocation(Location location) {
+    public ResponseEntity<?> createLocation(@RequestBody Location location) {
         try {
             return ok(inforClient.getLocationService().createLocation(authenticationTools.getInforContext(), location));
         } catch (SOAPFaultException e) {
@@ -78,10 +60,7 @@ public class LocationRest extends EAMLightNativeRestController {
     }
 
     @PutMapping
-    @RequestMapping("/")
-    
-    
-    public ResponseEntity<?> updateLocation(net.datastream.schemas.mp_entities.location_001.Location location) {
+    public ResponseEntity<?> updateLocation(@RequestBody net.datastream.schemas.mp_entities.location_001.Location location) {
         try {
             MP0319_SyncLocation_001 syncLocation = new MP0319_SyncLocation_001();
             syncLocation.setLocation(location);
@@ -94,9 +73,7 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @DeleteMapping
-    @RequestMapping("/{locationCode : .+}")
-    
+    @DeleteMapping("/{locationCode:.+}")
     public ResponseEntity<?> deleteLocation(@PathVariable("locationCode") String locationCode) {
         try {
             return ok(inforClient.getLocationService().deleteLocation(authenticationTools.getInforContext(), locationCode));
@@ -107,9 +84,7 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @GetMapping
-    @RequestMapping("/init")
-    
+    @GetMapping("/init")
     public ResponseEntity<?> initLocation() {
         try {
             Location location = new Location();

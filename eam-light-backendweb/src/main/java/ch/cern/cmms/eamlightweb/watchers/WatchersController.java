@@ -2,30 +2,20 @@ package ch.cern.cmms.eamlightweb.watchers;
 
 import ch.cern.cmms.eamlightejb.watchers.WatchersService;
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
-import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.tools.InforException;
-
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
 @RequestMapping("/workorders")
-
 public class WatchersController extends EAMLightController {
 
     @Autowired
     private WatchersService watchersService;
 
-    @GetMapping
-    @RequestMapping("/{woCode}/watchers")
-    
+    @GetMapping("/{woCode}/watchers")
     public ResponseEntity<?> getWatchersForWorkOrder(@PathVariable("woCode") String woCode) {
         try {
             return ok(watchersService.getWatchersForWorkOrder(authenticationTools.getInforContext(), woCode));
@@ -36,11 +26,8 @@ public class WatchersController extends EAMLightController {
         }
     }
 
-    @PostMapping
-    @RequestMapping("/{woCode}/watchers")
-    
-    
-    public ResponseEntity<?> addWatchersToWorkOrder(@PathVariable("woCode") String woCode, List<String> users) {
+    @PostMapping("/{woCode}/watchers")
+    public ResponseEntity<?> addWatchersToWorkOrder(@PathVariable("woCode") String woCode, @RequestBody List<String> users) {
         try {
             return ok(watchersService.addWatchersToWorkOrder(authenticationTools.getInforContext(),
                     authenticationTools.getR5InforContext(), woCode, users));
@@ -51,11 +38,8 @@ public class WatchersController extends EAMLightController {
         }
     }
 
-    @PutMapping
-    @RequestMapping("/{woCode}/watchers/remove")
-    
-    
-    public ResponseEntity<?> removeWatchersFromWorkOrder(@PathVariable("woCode") String woCode, List<String> users) {
+    @PutMapping("/{woCode}/watchers/remove")
+    public ResponseEntity<?> removeWatchersFromWorkOrder(@PathVariable("woCode") String woCode, @RequestBody List<String> users) {
         try {
             return ok(watchersService.removeWatchersFromWorkOrder(authenticationTools.getInforContext(), woCode, users));
         } catch (InforException e){
