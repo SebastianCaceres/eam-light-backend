@@ -46,3 +46,4 @@ eam-light-cern/target
 eam-light-backend.iml
 /.brain/
 .aider*
+/eam-light-frontend/
