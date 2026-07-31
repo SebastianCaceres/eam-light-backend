@@ -45,3 +45,4 @@ eam-light-cern/target
 .idea/
 eam-light-backend.iml
 /.brain/
+.aider*
