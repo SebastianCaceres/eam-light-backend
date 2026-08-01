@@ -30,10 +30,7 @@ public class NonConformityObservationsRest extends EAMLightController {
     @Autowired
     private AuthenticationTools authenticationTools;
 
-    @GetMapping
-    @RequestMapping("/{ncr}")
-    
-    
+    @GetMapping("/{ncr}")
     public ResponseEntity<?> loadNonConformityObservations(@PathVariable("ncr") String ncr) {
         try {
             List<Map<String, String>> additionalCostsList = new ArrayList<>();
@@ -57,9 +54,6 @@ public class NonConformityObservationsRest extends EAMLightController {
     }
 
     @PostMapping
-    @RequestMapping("/")
-    
-    
     public ResponseEntity<?> createNonConformityObservation(NonConformityObservation nonConformityObservation) {
         try {
             return ok(inforClient.getNonConformityObservationService().createNonConformityObservation(authenticationTools.getInforContext(), nonConformityObservation));

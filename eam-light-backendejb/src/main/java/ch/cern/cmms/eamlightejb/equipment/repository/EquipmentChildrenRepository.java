@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EquipmentChildrenRepository extends JpaRepository<EquipmentChildren, String> {
+public interface EquipmentChildrenRepository extends JpaRepository<EquipmentChildren, ch.cern.cmms.eamlightejb.equipment.EquipmentChildrenId> {
 
     @Query(name = EquipmentChildren.GET_EQUIPMENT_CHILDREN, nativeQuery = true)
     List<EquipmentChildren> getEquipmentChildren(@Param("equipment") String equipment);

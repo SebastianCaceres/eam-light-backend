@@ -26,6 +26,9 @@ import java.util.Set;
 import static ch.cern.eam.wshub.core.tools.DataTypeTools.isEmpty;
 import static ch.cern.eam.wshub.core.tools.DataTypeTools.isNotEmpty;
 
+import org.springframework.stereotype.Component;
+
+@Component
 @RequestScope
 public class AuthenticationTools {
     public enum Mode {

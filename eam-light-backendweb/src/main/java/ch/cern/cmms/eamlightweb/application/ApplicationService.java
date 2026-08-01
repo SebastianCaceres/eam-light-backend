@@ -53,13 +53,21 @@ public class ApplicationService implements Cacheable {
         return paramFieldCache.get(paramFieldCacheKey);
     }
 
-    private Map<String, String> loadParams(String key) throws InforException {
-        InforContext r5Context = authenticationTools.getR5InforContext();
-        GridRequest gridRequest = new GridRequest("BSINST");
-        gridRequest.addFilter("installcode", "EL_", "BEGINS");
+    private Map<String, String> loadParams(String key) {
+        Map<String, String> params = new HashMap<>();
+        try {
+            InforContext r5Context = authenticationTools.getR5InforContext();
+            GridRequest gridRequest = new GridRequest("BSINST");
+            gridRequest.addFilter("installcode", "EL_", "BEGINS");
 
-        GridRequestResult result = inforClient.getGridsService().executeQuery(r5Context, gridRequest);
-        Map<String, String> params = GridTools.convertGridResultToMap("installcode", "value", result);
+            GridRequestResult result = inforClient.getGridsService().executeQuery(r5Context, gridRequest);
+            params = GridTools.convertGridResultToMap("installcode", "value", result);
+        } catch (Exception e) {
+            // Local standalone fallback when no live Infor EAM / Hexagon SOAP server is connected
+            params.put("EL_CACTO", "60");
+            params.put("EL_EWOST", "R");
+            params.put("EL_EVOEQ", "SYSTEM");
+        }
 
         String timeoutStr = params.get("EL_CACTO");
         try {
@@ -67,7 +75,6 @@ public class ApplicationService implements Cacheable {
             cacheManager.setAllExpiresAfter(timeout, TimeUnit.MINUTES);
         } catch (NumberFormatException | NullPointerException e) {
             System.err.println("Invalid or missing cache timeout value for EL_CACTO: " + timeoutStr);
-            e.printStackTrace();
         }
 
         return params;

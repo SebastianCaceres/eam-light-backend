@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EquipmentTreeNodeRepository extends JpaRepository<EquipmentTreeNode, String> {
+public interface EquipmentTreeNodeRepository extends JpaRepository<EquipmentTreeNode, ch.cern.cmms.eamlightejb.equipment.EquipmentTreeNodeId> {
 
     @Query(name = EquipmentTreeNode.GET_TREE, nativeQuery = true)
     List<EquipmentTreeNode> getTree(@Param("equipment") String equipment);

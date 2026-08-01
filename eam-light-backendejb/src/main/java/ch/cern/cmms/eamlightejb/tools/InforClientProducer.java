@@ -83,8 +83,13 @@ public class InforClientProducer {
     @Bean
     public InforClient inforClient() {
         try {
+            String inforWsUrl = Tools.getVariableValue("EAMLIGHT_INFOR_WS_URL");
+            if (inforWsUrl == null || inforWsUrl.trim().isEmpty()) {
+                inforWsUrl = "http://localhost/inforws";
+            }
+
             // Build the Infor Client
-            InforClient inforClient = new InforClient.Builder(Tools.getVariableValue("EAMLIGHT_INFOR_WS_URL"))
+            InforClient inforClient = new InforClient.Builder(inforWsUrl)
                     .withDefaultTenant(Tools.getVariableValue("EAMLIGHT_INFOR_TENANT"))
                     .withDefaultOrganizationCode(Tools.getVariableValue("EAMLIGHT_INFOR_ORGANIZATION"))
                     .withSOAPHandlerResolver(new SOAPHandlerResolver())

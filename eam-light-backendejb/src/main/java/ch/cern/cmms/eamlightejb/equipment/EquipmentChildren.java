@@ -15,6 +15,7 @@ import javax.persistence.*;
  */
 
 @Entity
+@IdClass(EquipmentChildrenId.class)
 @NamedNativeQueries({
 		@NamedNativeQuery(
 				name = EquipmentChildren.GET_EQUIPMENT_CHILDREN, 

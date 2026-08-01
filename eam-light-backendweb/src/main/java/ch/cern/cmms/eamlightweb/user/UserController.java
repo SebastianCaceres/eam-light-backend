@@ -36,8 +36,6 @@ public class UserController extends EAMLightController {
 	private AuthenticationTools authenticationTools;
 
 	@GetMapping
-	@RequestMapping("/")
-	
 	public ResponseEntity<?> readUserData(@RequestParam("currentScreen") String currentScreen,
 								 @RequestParam("screenCode") String screenCode) {
 		try {

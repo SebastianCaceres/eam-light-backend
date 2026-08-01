@@ -33,10 +33,7 @@ public class NonConformitiesRest extends EAMLightController {
 	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@GetMapping
-	@RequestMapping("/{code}")
-	
-	
+	@GetMapping("/{code}")
 	public ResponseEntity<?> readNonConformity(@PathVariable("code") String code) {
 		try {
 			return ok(inforClient.getNonconformityService().readNonconformity(authenticationTools.getInforContext(), code));
@@ -48,8 +45,6 @@ public class NonConformitiesRest extends EAMLightController {
 	}
 
 	@PostMapping
-	
-	
 	public ResponseEntity<?> createNonConformity(NonConformity nonConformity) {
 		try {
 			return ok(inforClient.getNonconformityService().createNonconformity(authenticationTools.getInforContext(), nonConformity));
@@ -61,8 +56,6 @@ public class NonConformitiesRest extends EAMLightController {
 	}
 
 	@PutMapping
-	
-	
 	public ResponseEntity<?> updateNonConformity(NonConformity nonConformity) {
 		try {
 			return ok(inforClient.getNonconformityService().updateNonconformity(authenticationTools.getInforContext(), nonConformity));
@@ -73,10 +66,7 @@ public class NonConformitiesRest extends EAMLightController {
 		}
 	}
 
-	@DeleteMapping
-	@RequestMapping("/{code}")
-	
-	
+	@DeleteMapping("/{code}")
 	public ResponseEntity<?> deleteNonConformity(@PathVariable("code") String code) {
 		try {
 			inforClient.getNonconformityService().deleteNonconformity(authenticationTools.getInforContext(), code);
@@ -89,10 +79,7 @@ public class NonConformitiesRest extends EAMLightController {
 	}
 
 
-	@GetMapping
-	@RequestMapping("/init")
-	
-	
+	@GetMapping("/init")
 	public ResponseEntity<?> initNonConformity() {
 			try {
 				NonConformity nonConformity = inforClient.getNonconformityService().readNonconformityDefault(authenticationTools.getInforContext(), "");
@@ -107,10 +94,7 @@ public class NonConformitiesRest extends EAMLightController {
 		}
 
 
-	@GetMapping
-	@RequestMapping("/equipment/{asset}")
-	
-	
+	@GetMapping("/equipment/{asset}")
 	public ResponseEntity<?> getEquipmentNonConformities(@PathVariable("asset") String asset) {
 		try {
 			List<Map<String, String>> assetNonConformities = new ArrayList<>();

@@ -9,10 +9,13 @@ import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.Transient;
 
+import javax.persistence.IdClass;
+
 /**
  * Tree Node for Equipment Structure
  */
 @Entity
+@IdClass(EquipmentTreeNodeId.class)
 @NamedNativeQueries({
     @NamedNativeQuery(name = EquipmentTreeNode.GET_TREE_ASBMGR,
             query = "select id as id, name as name, null as parent from ASBMGR.C_NODES " +

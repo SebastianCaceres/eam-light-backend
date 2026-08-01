@@ -1,66 +1,96 @@
-# EAM Light Backend
-EAM Light Backend provides a REST facade for the [eam-light-frontend](https://github.com/cern-eam/eam-light-frontend) module. Together, they constitute the EAM Light web application. 
+# EAM Light
 
-## Run
-To run EAM Light using Docker, we have available a Docker image that exposes both the backend and frontend modules of the application.
+EAM Light is a modern, lightweight web application providing an intuitive interface for Enterprise Asset Management (EAM). It combines a React frontend (`eam-light-frontend`) with a robust Java/Spring Boot backend (`eam-light-backend`) and a Spring Data JPA persistence layer (`eam-wshub-core`).
 
-The docker container may be started by providing a single argument: the Infor Web Server URL (EAMLIGHT_INFOR_WS_URL), which will look similar in your organization to the following: `https://inforappserver/axis/services/EWSConnector`.
-```
-docker run -p 8080:8080 -p 9090:9090 --env EAMLIGHT_INFOR_WS_URL=<Infor WS URL> cerneam/eam-light
-```
+---
 
-In addition, you have to create a new Grid (Administration / Screen Configuration / Grid Designer) exactly as illustrated below, with the exception of the Grid ID. 
+## 🏗 Architecture Overview
 
-![Alt text](docs/EAMLight_Layout_Grid.png?raw=true "EAM Light Layout Grid")
-
-Once the docker container is started, browsing to [http://localhost:8080/eamlight](http://localhost:8080/eamlight) will open the standard login screen of EAM Light.
-
-The docker container exposes the following ports:
-
-| Port          | Description           |
-| ------------- | ---------------------:|
-| 8080          | EAM Light Backend     | 
-| 9090          | JBoss Management Port |
-
-The EAM Light REST backend is available at the endpoint [http://localhost:9090/rest](http://localhost:9090/rest).
-
-You can find out how to further configure the backend below, and the frontend by reading its [documentation](https://github.com/cern-eam/eam-light-frontend).
-
-## Configuration
-The docker image is parametrizable with the following environment variables:
-
-| Variable                      | Required    | Default Value | Example    |
-| ----------------------------- | ----------: | ------------- | ---------- |
-| EAMLIGHT_INFOR_WS_URL         | **Yes**     |               | https://cmmsx.cern.ch/axis/services/EWSConnector |
-| EAMLIGHT_ADMIN_USER           | **No**      |               | R5         |
-| EAMLIGHT_ADMIN_PASSWORD       | **No**      |               | test123    |
-| EAMLIGHT_AUTHENTICATION_MODE  | **No**      | STD           | STD        |
-| EAMLIGHT_DEFAULT_USER         | **No**      |               | LPATER     |
-| EAMLIGHT_INFOR_TENANT         | **No**      |               | infor      |
-| EAMLIGHT_INFOR_ORGANIZATION   | **No**      |               | *          |
-
-The EAMLIGHT_AUTHENTICATION_MODE can be set to the following values to change how authentication is performed:
-
-| EAMLIGHT_AUTHENTICATION_MODE | Usage |
-| ---------------------------- | ----- |
-| STD                          | Displays a login screen    |
-| LOCAL                        | Uses EAMLIGHT_DEFAULT_USER, EAMLIGHT_ADMIN_PASSWORD, EAMLIGHT_INFOR_TENANT and EAMLIGHT_INFOR_ORGANIZATION to login automatically |
-| SSO                          | Logins using SSO with ADFS |
-| OPENID                       | Logins using OPENID        |
-
-The SSO and OPENID options can be used to disable the standard login screen, so that you can used the shared authentication schema of your enterprise. Please contact us if you wish to configure this option.
-
-You may store your environment variables in a dedicated .env file, so that they persist:
-```
-EAMLIGHT_INFOR_WS_URL=<url>
-EAMLIGHT_ADMIN_USER=<admin user>
-EAMLIGHT_ADMIN_PASSWORD=<password>
+```mermaid
+graph TD
+    UI["React Frontend (Vite / MUI v5)"] -->|REST API| REST["Backend REST Controllers (eam-light-backendweb)"]
+    REST -->|Spring Data Repositories| JPA["JPA Persistence Layer (eam-wshub-core)"]
+    JPA -->|H2 / Oracle / Postgres| DB[(Database)]
 ```
 
-To use this file in Docker, run it using the `--env-file` option:
-```
-docker run -p 8080:8080 -p 9090:9090 --env-file .env cerneam/eam-light
+* **Frontend**: React 18, Material UI v5, Vite build engine.
+* **Backend**: Java 17, Spring Data JPA repositories, REST APIs.
+* **Database**: Embedded H2 for zero-dependency local development and testing, or Oracle / PostgreSQL for production deployment.
+
+---
+
+## 🚀 Building & Running the Application
+
+### Method 1: Coupled Single-Server Mode (Recommended for Testing / Production)
+Builds the React frontend, packages static assets directly into the backend JAR/WAR, and runs both on a **single port (`http://localhost:8080/`)**:
+
+```bash
+# 1. Build frontend and backend together
+mvn clean compile -Pfrontend
+
+# 2. Launch the unified Spring Boot server
+mvn spring-boot:run -pl eam-light-backendweb
 ```
 
-## License
+* **Frontend UI**: Open `http://localhost:8080/` in your browser.
+* **REST API**: Accessible at `http://localhost:8080/rest/`.
+* **H2 Demo Data**: `WO-1001`, `AST-1001`, `PART-1001`, and `admin` user are automatically seeded on startup.
+
+---
+
+### Method 2: Dual Terminal Hot-Reloading Mode (Recommended for Development)
+Use this method when actively editing React components in `eam-light-frontend` so changes appear instantly in your browser via Vite Hot Module Replacement (HMR).
+
+#### Terminal 1: Launch Backend Server
+```bash
+mvn spring-boot:run -pl eam-light-backendweb
+```
+
+#### Terminal 2: Launch Frontend Dev Server
+```bash
+cd eam-light-frontend
+npm run dev
+```
+
+* **Frontend UI**: Open `http://localhost:3000/` in your browser.
+* **Vite Proxy**: Automatically proxies all `/rest` API requests from `http://localhost:3000/rest` to `http://localhost:8080/rest` behind the scenes.
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+### 1. JPA Entity & H2 Schema Validation Tests
+To run unit and persistence integration tests:
+
+```bash
+mvn test -Dtest=JpaConfigurationTest
+```
+
+### 2. Outside-In Selenium E2E Tests
+EAM Light includes a full Selenium WebDriver test suite running in headless Chrome to verify all 17 React frontend routes:
+
+```bash
+# Run all E2E Selenium tests
+mvn test -Dtest=*E2ETest
+
+# Run specific domain tests
+mvn test -Dtest=WorkOrderE2ETest
+mvn test -Dtest=EquipmentE2ETest
+mvn test -Dtest=PartE2ETest
+```
+
+---
+
+## ⚙️ Configuration & Environment Variables
+
+| Variable | Default Value | Description |
+|---|---|---|
+| `EAMLIGHT_AUTHENTICATION_MODE` | `STD` | Authentication mode (`STD`, `LOCAL`, `SSO`, `OPENID`) |
+| `EAMLIGHT_DEFAULT_USER` | `admin` | Default user account for local mode |
+| `EAMLIGHT_INFOR_TENANT` | `CERN` | Organization tenant identifier |
+| `EAMLIGHT_INFOR_ORGANIZATION` | `CERN` | Default organization identifier |
+
+---
+
+## 📄 License
 This software is published under the GNU General Public License v3.0 or later.

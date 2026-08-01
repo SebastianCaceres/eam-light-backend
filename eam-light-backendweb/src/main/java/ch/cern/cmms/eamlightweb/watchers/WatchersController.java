@@ -23,9 +23,7 @@ public class WatchersController extends EAMLightController {
     @Autowired
     private WatchersService watchersService;
 
-    @GetMapping
-    @RequestMapping("/{woCode}/watchers")
-    
+    @GetMapping("/{woCode}/watchers")
     public ResponseEntity<?> getWatchersForWorkOrder(@PathVariable("woCode") String woCode) {
         try {
             return ok(watchersService.getWatchersForWorkOrder(authenticationTools.getInforContext(), woCode));
@@ -36,10 +34,7 @@ public class WatchersController extends EAMLightController {
         }
     }
 
-    @PostMapping
-    @RequestMapping("/{woCode}/watchers")
-    
-    
+    @PostMapping("/{woCode}/watchers")
     public ResponseEntity<?> addWatchersToWorkOrder(@PathVariable("woCode") String woCode, List<String> users) {
         try {
             return ok(watchersService.addWatchersToWorkOrder(authenticationTools.getInforContext(),
@@ -51,10 +46,7 @@ public class WatchersController extends EAMLightController {
         }
     }
 
-    @PutMapping
-    @RequestMapping("/{woCode}/watchers/remove")
-    
-    
+    @PutMapping("/{woCode}/watchers/remove")
     public ResponseEntity<?> removeWatchersFromWorkOrder(@PathVariable("woCode") String woCode, List<String> users) {
         try {
             return ok(watchersService.removeWatchersFromWorkOrder(authenticationTools.getInforContext(), woCode, users));

@@ -36,7 +36,7 @@ public class EquipmentRest extends EAMLightController {
 
 	@Autowired
 	private CodeGeneratorService codeGeneratorService;
-	@Autowired
+	@Autowired(required = false)
 	private MTFWorkOrderServiceImpl mtfStandardWorkOrderService;
 
 	@PostMapping

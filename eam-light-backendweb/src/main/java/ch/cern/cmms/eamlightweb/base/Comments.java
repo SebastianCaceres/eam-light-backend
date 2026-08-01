@@ -17,7 +17,7 @@ import java.util.Optional;
 @RequestMapping("/comments")
 public class Comments extends EAMLightController {
 
-	@Autowired
+	@Autowired(required = false)
 	private CommentRepository commentRepository;
 
 	@Autowired

@@ -43,9 +43,7 @@ public class LocationRest extends EAMLightNativeRestController {
     @Autowired
     private InforClient inforClient;
 
-    @GetMapping
-    @RequestMapping("/{location}")
-    
+    @GetMapping("/{location}")
     public ResponseEntity<?> readLocation(@PathVariable("location") String location) {
         try {
             MP0318_GetLocation_001 getLocation = new MP0318_GetLocation_001();
@@ -65,8 +63,6 @@ public class LocationRest extends EAMLightNativeRestController {
     }
 
     @PostMapping
-    @RequestMapping("/")
-    
     public ResponseEntity<?> createLocation(Location location) {
         try {
             return ok(inforClient.getLocationService().createLocation(authenticationTools.getInforContext(), location));
@@ -78,9 +74,6 @@ public class LocationRest extends EAMLightNativeRestController {
     }
 
     @PutMapping
-    @RequestMapping("/")
-    
-    
     public ResponseEntity<?> updateLocation(net.datastream.schemas.mp_entities.location_001.Location location) {
         try {
             MP0319_SyncLocation_001 syncLocation = new MP0319_SyncLocation_001();
@@ -94,9 +87,7 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @DeleteMapping
-    @RequestMapping("/{locationCode : .+}")
-    
+    @DeleteMapping("/{locationCode:.+}")
     public ResponseEntity<?> deleteLocation(@PathVariable("locationCode") String locationCode) {
         try {
             return ok(inforClient.getLocationService().deleteLocation(authenticationTools.getInforContext(), locationCode));
@@ -107,9 +98,7 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @GetMapping
-    @RequestMapping("/init")
-    
+    @GetMapping("/init")
     public ResponseEntity<?> initLocation() {
         try {
             Location location = new Location();

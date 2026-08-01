@@ -40,9 +40,6 @@ public class SearchController extends EAMLightController {
 	private InforClient inforClient;
 
 	@GetMapping
-	@RequestMapping("/")
-	
-	
 	public ResponseEntity<?> getSearchResults(@RequestParam("s") String searchKeyWord, @RequestParam("entityTypes") String entityTypes) {
 		if (searchKeyWord != null) {
 			searchKeyWord = searchKeyWord.trim();

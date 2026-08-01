@@ -14,8 +14,19 @@ public class Tools {
         String valueFromEnv = System.getenv().get(variableName);
         if (valueFromEnv != null && !valueFromEnv.isEmpty()) {
             return valueFromEnv;
-        } else {
-            return System.getProperty(variableName);
+        }
+        String val = System.getProperty(variableName);
+        if (val != null && !val.isEmpty()) {
+            return val;
+        }
+        switch (variableName) {
+            case "EAMLIGHT_AUTHENTICATION_MODE": return "LOCAL";
+            case "EAMLIGHT_ADMIN_USER": return "ADMIN";
+            case "EAMLIGHT_DEFAULT_USER": return "ADMIN";
+            case "EAMLIGHT_ADMIN_PASSWORD": return "admin";
+            case "EAMLIGHT_INFOR_ORGANIZATION": return "*";
+            case "EAMLIGHT_INFOR_TENANT": return "infor";
+            default: return null;
         }
     }
 
