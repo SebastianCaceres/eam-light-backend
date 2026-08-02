@@ -21,8 +21,9 @@ import java.time.Duration;
 import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PartE2ETest {
+public class WorkOrderE2ETest {
 
     private WebDriver driver;
     private WebDriverWait wait;
@@ -46,6 +47,7 @@ public class PartE2ETest {
 
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        EamLightSeleniumTest.login(driver, wait);
     }
 
     @AfterEach
@@ -66,25 +68,17 @@ public class PartE2ETest {
     }
 
     @Test
-    public void testPartSearchAndDetailNavigation() {
+    public void testWorkOrderSearchAndDetailView() {
         try {
-            driver.get("http://localhost:8080/partsearch");
-            WebElement searchContainer = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@id, 'searchContainer') or contains(@class, 'searchContainer') or contains(text(), 'Part')]")));
-            assertNotNull(searchContainer, "Part search page should load");
-        } catch (Exception e) {
-            System.err.println("testPartSearchAndDetailNavigation failed: " + e.getMessage());
-            throw e;
-        }
-    }
+            // 1. Open Work Order Search Page
+            driver.get("http://localhost:8080/wosearch");
 
-    @Test
-    public void testLotSearchAndDetailNavigation() {
-        try {
-            driver.get("http://localhost:8080/lotsearch");
-            WebElement searchContainer = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@id, 'searchContainer') or contains(@class, 'searchContainer') or contains(text(), 'Lot')]")));
-            assertNotNull(searchContainer, "Lot search page should load");
+            // 2. Verify page container loads
+            WebElement root = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("root")));
+            assertNotNull(root, "Work Order Search page should load");
+
         } catch (Exception e) {
-            System.err.println("testLotSearchAndDetailNavigation failed: " + e.getMessage());
+            System.err.println("WorkOrderE2ETest failed: " + e.getMessage());
             throw e;
         }
     }

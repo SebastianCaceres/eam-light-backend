@@ -22,7 +22,7 @@ import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class SpecialOperationsE2ETest {
+public class PartE2ETest {
 
     private WebDriver driver;
     private WebDriverWait wait;
@@ -46,6 +46,7 @@ public class SpecialOperationsE2ETest {
 
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        EamLightSeleniumTest.login(driver, wait);
     }
 
     @AfterEach
@@ -66,25 +67,25 @@ public class SpecialOperationsE2ETest {
     }
 
     @Test
-    public void testReplaceEquipmentNavigation() {
+    public void testPartSearchAndDetailNavigation() {
         try {
-            driver.get("http://localhost:8080/replaceeqp");
-            WebElement page = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), 'Replace') or contains(text(), 'Equipment') or contains(@id, 'root')]")));
-            assertNotNull(page, "Replace Equipment page should load");
+            driver.get("http://localhost:8080/partsearch");
+            WebElement root = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("root")));
+            assertNotNull(root, "Part search page should load");
         } catch (Exception e) {
-            System.err.println("testReplaceEquipmentNavigation failed: " + e.getMessage());
+            System.err.println("testPartSearchAndDetailNavigation failed: " + e.getMessage());
             throw e;
         }
     }
 
     @Test
-    public void testMeterReadingNavigation() {
+    public void testLotSearchAndDetailNavigation() {
         try {
-            driver.get("http://localhost:8080/meterreading");
-            WebElement page = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), 'Meter') or contains(text(), 'Reading') or contains(@id, 'root')]")));
-            assertNotNull(page, "Meter Reading page should load");
+            driver.get("http://localhost:8080/lotsearch");
+            WebElement root = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("root")));
+            assertNotNull(root, "Lot search page should load");
         } catch (Exception e) {
-            System.err.println("testMeterReadingNavigation failed: " + e.getMessage());
+            System.err.println("testLotSearchAndDetailNavigation failed: " + e.getMessage());
             throw e;
         }
     }

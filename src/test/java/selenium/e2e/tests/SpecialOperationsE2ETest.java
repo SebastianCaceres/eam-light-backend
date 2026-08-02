@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -22,9 +21,8 @@ import java.time.Duration;
 import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WorkOrderE2ETest {
+public class SpecialOperationsE2ETest {
 
     private WebDriver driver;
     private WebDriverWait wait;
@@ -48,6 +46,7 @@ public class WorkOrderE2ETest {
 
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        EamLightSeleniumTest.login(driver, wait);
     }
 
     @AfterEach
@@ -68,17 +67,25 @@ public class WorkOrderE2ETest {
     }
 
     @Test
-    public void testWorkOrderSearchAndDetailView() {
+    public void testReplaceEquipmentNavigation() {
         try {
-            // 1. Open Work Order Search Page
-            driver.get("http://localhost:8080/wosearch");
-
-            // 2. Verify page container loads
-            WebElement searchContainer = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@id, 'searchContainer') or contains(@class, 'searchContainer') or contains(text(), 'Work Order')]")));
-            assertNotNull(searchContainer, "Work Order Search page should load");
-
+            driver.get("http://localhost:8080/replaceeqp");
+            WebElement page = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), 'Replace') or contains(text(), 'Equipment') or contains(@id, 'root')]")));
+            assertNotNull(page, "Replace Equipment page should load");
         } catch (Exception e) {
-            System.err.println("WorkOrderE2ETest failed: " + e.getMessage());
+            System.err.println("testReplaceEquipmentNavigation failed: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    @Test
+    public void testMeterReadingNavigation() {
+        try {
+            driver.get("http://localhost:8080/meterreading");
+            WebElement page = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), 'Meter') or contains(text(), 'Reading') or contains(@id, 'root')]")));
+            assertNotNull(page, "Meter Reading page should load");
+        } catch (Exception e) {
+            System.err.println("testMeterReadingNavigation failed: " + e.getMessage());
             throw e;
         }
     }

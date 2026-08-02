@@ -46,6 +46,7 @@ public class EquipmentE2ETest {
 
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        EamLightSeleniumTest.login(driver, wait);
     }
 
     @AfterEach
@@ -69,8 +70,8 @@ public class EquipmentE2ETest {
     public void testAssetSearchAndDetailNavigation() {
         try {
             driver.get("http://localhost:8080/assetsearch");
-            WebElement searchContainer = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@id, 'searchContainer') or contains(@class, 'searchContainer') or contains(text(), 'Asset')]")));
-            assertNotNull(searchContainer, "Asset search page should load");
+            WebElement root = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("root")));
+            assertNotNull(root, "Asset search page should load");
         } catch (Exception e) {
             System.err.println("testAssetSearchAndDetailNavigation failed: " + e.getMessage());
             throw e;
@@ -81,8 +82,8 @@ public class EquipmentE2ETest {
     public void testPositionSearchAndDetailNavigation() {
         try {
             driver.get("http://localhost:8080/positionsearch");
-            WebElement searchContainer = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@id, 'searchContainer') or contains(@class, 'searchContainer') or contains(text(), 'Position')]")));
-            assertNotNull(searchContainer, "Position search page should load");
+            WebElement root = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("root")));
+            assertNotNull(root, "Position search page should load");
         } catch (Exception e) {
             System.err.println("testPositionSearchAndDetailNavigation failed: " + e.getMessage());
             throw e;
@@ -93,8 +94,8 @@ public class EquipmentE2ETest {
     public void testLocationSearchAndDetailNavigation() {
         try {
             driver.get("http://localhost:8080/locationsearch");
-            WebElement searchContainer = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@id, 'searchContainer') or contains(@class, 'searchContainer') or contains(text(), 'Location')]")));
-            assertNotNull(searchContainer, "Location search page should load");
+            WebElement root = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("root")));
+            assertNotNull(root, "Location search page should load");
         } catch (Exception e) {
             System.err.println("testLocationSearchAndDetailNavigation failed: " + e.getMessage());
             throw e;

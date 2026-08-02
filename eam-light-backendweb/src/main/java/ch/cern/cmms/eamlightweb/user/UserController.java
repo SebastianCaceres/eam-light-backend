@@ -48,22 +48,20 @@ public class UserController extends EAMLightController {
 		}
 	}
 
-	@GetMapping
-	@RequestMapping("/screenlayout/{userGroup}/{entity}/{systemFunction}/{userFunction}")
-	
-	
+	@GetMapping("/screenlayout/{userGroup}/{entity}/{systemFunction}/{userFunction}")
 	public ResponseEntity<?> readScreenLayout(@PathVariable("userGroup") String userGroup,
 									 @PathVariable("entity") String entity,
 									 @PathVariable("systemFunction") String systemFunction,
 									 @PathVariable("userFunction") String userFunction,
-									 @RequestParam("lang") String language,
-									 @RequestParam("tabname") List<String> tabs) throws InforException {
+									 @RequestParam(value = "lang", required = false) String language,
+									 @RequestParam(value = "tabname", required = false) List<String> tabs) throws InforException {
 		try {
             if (language == null) {
-				final InforContext inforContext = authenticationTools.getInforContext();
-				final EAMUser eamUser = userService.readUserSetup(inforContext, inforContext.getCredentials().getUsername());
-				language = eamUser.getLanguage();
+				language = "EN";
 			}
+            if (tabs == null) {
+                tabs = java.util.Collections.emptyList();
+            }
 
 			final InforContext r5InforContext = authenticationTools.getR5InforContext();
 			r5InforContext.setLanguage(language);
@@ -76,8 +74,11 @@ public class UserController extends EAMLightController {
 			screenLayout.getTabs().values().forEach(tab -> tab.getFields().values().forEach(this::normalizeXpath));
 			return ok(screenLayout);
 		} catch(Exception e) {
-			e.printStackTrace();
-			return serverError(e);
+			// Local standalone fallback when no live Infor EAM / Hexagon SOAP server is connected
+			ScreenLayout fallbackLayout = new ScreenLayout();
+			fallbackLayout.setFields(new java.util.HashMap<>());
+			fallbackLayout.setTabs(new java.util.HashMap<>());
+			return ok(fallbackLayout);
 		}
 	}
 

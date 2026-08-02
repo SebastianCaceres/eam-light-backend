@@ -9,10 +9,14 @@ public class SpaController {
     @GetMapping(value = {
         "", "/",
         "/wosearch", "/workorder", "/workorder/**",
-        "/assetsearch", "/positionsearch", "/systemsearch", "/locationsearch",
-        "/partsearch", "/part", "/part/**", "/lotsearch",
+        "/assetsearch", "/asset", "/asset/**",
+        "/positionsearch", "/position", "/position/**",
+        "/systemsearch", "/system", "/system/**",
+        "/locationsearch", "/location", "/location/**",
+        "/partsearch", "/part", "/part/**", "/lotsearch", "/lot", "/lot/**",
         "/ncrsearch", "/ncr", "/ncr/**",
-        "/replaceeqp", "/meterreading"
+        "/replaceeqp", "/meterreading",
+        "/grid", "/report", "/eqptree", "/releasenotes", "/equipment", "/equipment/**"
     })
     public String forwardToSpa() {
         return "forward:/index.html";

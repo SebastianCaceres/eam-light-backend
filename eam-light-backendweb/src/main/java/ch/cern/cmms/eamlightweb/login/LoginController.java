@@ -22,7 +22,7 @@ public class LoginController extends EAMLightController {
     @Autowired
     private AuthenticationTools authenticationTools;
 
-    @GetMapping
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> login() throws InforException {
         try {
             InforContext inforContext = authenticationTools.getInforContext();
