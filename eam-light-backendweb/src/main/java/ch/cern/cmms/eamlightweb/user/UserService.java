@@ -146,6 +146,12 @@ public class UserService implements Cacheable {
             defaultAdminUser.setUserCode("ADMIN");
             defaultAdminUser.setUserGroup("ADMIN");
             defaultAdminUser.setUserDefinedFields(new ch.cern.eam.wshub.core.services.entities.UserDefinedFields());
+            java.util.Map<String, ch.cern.eam.wshub.core.services.entities.Department> deptSecMap = new java.util.HashMap<>();
+            ch.cern.eam.wshub.core.services.entities.Department sec = new ch.cern.eam.wshub.core.services.entities.Department();
+            sec.setReadOnly(false);
+            deptSecMap.put("*", sec);
+            deptSecMap.put("", sec);
+            defaultAdminUser.setDepartmentalSecurity(deptSecMap);
             return defaultAdminUser;
         }
     }

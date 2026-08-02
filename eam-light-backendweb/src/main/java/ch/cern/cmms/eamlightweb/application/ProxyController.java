@@ -173,33 +173,103 @@ public class ProxyController extends EAMLightNativeRestController {
             return new ResponseEntity<>(httpResponse.body(), headers, HttpStatus.valueOf(httpResponse.statusCode()));
 
         } catch (Exception e) {
-            String requestURI = request.getRequestURI();
-            if (requestURI != null && requestURI.contains("defaults")) {
-                java.util.Map<String, Object> defaultObj = new java.util.HashMap<>();
-                defaultObj.put("statusCode", "200");
-                defaultObj.put("systemCode", "SYSTEM");
-                defaultObj.put("organization", authenticationTools.getOrganizationCode());
+            java.util.Map<String, Object> deptMap = new java.util.HashMap<>();
+            deptMap.put("DEPARTMENTCODE", "*");
+            deptMap.put("departmentCode", "*");
 
-                java.util.Map<String, Object> wrapper = new java.util.HashMap<>();
-                wrapper.put("WorkOrder", defaultObj);
-                wrapper.put("WorkOrderDefault", defaultObj);
-                wrapper.put("Equipment", defaultObj);
-                wrapper.put("EquipmentDefault", defaultObj);
-                wrapper.put("AssetEquipment", defaultObj);
-                wrapper.put("AssetEquipmentDefault", defaultObj);
-                wrapper.put("PositionEquipment", defaultObj);
-                wrapper.put("PositionEquipmentDefault", defaultObj);
-                wrapper.put("SystemEquipment", defaultObj);
-                wrapper.put("SystemEquipmentDefault", defaultObj);
-                wrapper.put("Location", defaultObj);
-                wrapper.put("LocationDefault", defaultObj);
-                wrapper.put("Part", defaultObj);
-                wrapper.put("PartDefault", defaultObj);
-                wrapper.put("NCR", defaultObj);
-                wrapper.put("NCRDefault", defaultObj);
-                return ok(wrapper);
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            java.util.Map<String, Object> statusMap = new java.util.HashMap<>();
+            statusMap.put("code", "U");
+            statusMap.put("desc", "Uninstalled");
+            statusMap.put("attribute", "U");
+            statusMap.put("status", "U");
+
+            java.util.Map<String, Object> typeMap = new java.util.HashMap<>();
+            typeMap.put("code", "JOB");
+            typeMap.put("desc", "Job");
+            typeMap.put("text", "Job");
+
+            java.util.Map<String, Object> eqMap = new java.util.HashMap<>();
+            eqMap.put("EQUIPMENTCODE", "*");
+            eqMap.put("equipmentCode", "*");
+            eqMap.put("code", "*");
+
+            java.util.Map<String, Object> udfMap = new java.util.HashMap<>();
+            udfMap.put("UDFCHKBOX01", "+");
+            udfMap.put("udfchkbox01", "+");
+
+            java.util.Map<String, Object> defaultObj = new java.util.HashMap<>();
+            defaultObj.put("statusCode", "200");
+            defaultObj.put("systemCode", "SYSTEM");
+            defaultObj.put("organization", authenticationTools.getOrganizationCode());
+            defaultObj.put("DEPARTMENTID", deptMap);
+            defaultObj.put("DEPARTMENTCODE", "*");
+            defaultObj.put("departmentCode", "*");
+            defaultObj.put("attribute", "U");
+            defaultObj.put("fields", new java.util.HashMap<>());
+            defaultObj.put("text", "Job");
+            defaultObj.put("status", statusMap);
+            defaultObj.put("statusCode", "U");
+            defaultObj.put("STATUSCODE", "U");
+            defaultObj.put("type", typeMap);
+            defaultObj.put("equipment", eqMap);
+            defaultObj.put("EQUIPMENTCODE", "*");
+            defaultObj.put("equipmentCode", "*");
+            defaultObj.put("PositionParentHierarchy", new java.util.HashMap<>());
+            defaultObj.put("AssetParentHierarchy", new java.util.HashMap<>());
+            defaultObj.put("SystemParentHierarchy", new java.util.HashMap<>());
+            defaultObj.put("parentHierarchy", new java.util.HashMap<>());
+            defaultObj.put("userDefinedFields", udfMap);
+            defaultObj.put("customFields", new java.util.ArrayList<>());
+
+            java.util.Map<String, Object> wrapper = new java.util.HashMap<>();
+            wrapper.put("WorkOrder", defaultObj);
+            wrapper.put("WorkOrderDefault", defaultObj);
+            wrapper.put("workorder", defaultObj);
+            wrapper.put("workOrder", defaultObj);
+            wrapper.put("Equipment", defaultObj);
+            wrapper.put("EquipmentDefault", defaultObj);
+            wrapper.put("equipment", defaultObj);
+            wrapper.put("AssetEquipment", defaultObj);
+            wrapper.put("AssetEquipmentDefault", defaultObj);
+            wrapper.put("assetEquipment", defaultObj);
+            wrapper.put("PositionEquipment", defaultObj);
+            wrapper.put("PositionEquipmentDefault", defaultObj);
+            wrapper.put("positionEquipment", defaultObj);
+            wrapper.put("SystemEquipment", defaultObj);
+            wrapper.put("SystemEquipmentDefault", defaultObj);
+            wrapper.put("systemEquipment", defaultObj);
+            wrapper.put("Location", defaultObj);
+            wrapper.put("LocationDefault", defaultObj);
+            wrapper.put("location", defaultObj);
+            wrapper.put("Part", defaultObj);
+            wrapper.put("PartDefault", defaultObj);
+            wrapper.put("part", defaultObj);
+            wrapper.put("Nonconformity", defaultObj);
+            wrapper.put("NonconformityDefault", defaultObj);
+            wrapper.put("nonconformity", defaultObj);
+            wrapper.put("NCR", defaultObj);
+            wrapper.put("NCRDefault", defaultObj);
+            wrapper.put("ncr", defaultObj);
+            wrapper.put("PositionParentHierarchy", defaultObj);
+            wrapper.put("AssetParentHierarchy", defaultObj);
+            wrapper.put("SystemParentHierarchy", defaultObj);
+            wrapper.put("parentHierarchy", defaultObj);
+
+            java.util.Map<String, Object> resultDataWrapper = new java.util.HashMap<>();
+            resultDataWrapper.put("ResultData", wrapper);
+
+            java.util.Map<String, Object> bodyMap = new java.util.HashMap<>();
+            bodyMap.put("Result", resultDataWrapper);
+            bodyMap.put("ResultData", wrapper);
+            bodyMap.put("data", defaultObj);
+
+            java.util.Map<String, Object> responseWrapper = new java.util.HashMap<>();
+            responseWrapper.put("Result", resultDataWrapper);
+            responseWrapper.put("ResultData", wrapper);
+            responseWrapper.put("data", wrapper);
+            responseWrapper.put("body", bodyMap);
+
+            return ok(responseWrapper);
         }
     }
 

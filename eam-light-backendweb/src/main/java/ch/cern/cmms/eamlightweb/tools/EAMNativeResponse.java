@@ -25,6 +25,14 @@ public class EAMNativeResponse<T> {
 	}
 
 	public static<T> EAMNativeResponse fromData(T data) {
+		if (data != null) {
+			if (data instanceof java.util.Map && ((java.util.Map<?,?>)data).containsKey("ResultData")) {
+				return new EAMNativeResponse(data, new ArrayList<>());
+			}
+			java.util.Map<String, Object> resultDataWrapper = new java.util.HashMap<>();
+			resultDataWrapper.put("ResultData", data);
+			return new EAMNativeResponse(resultDataWrapper, new ArrayList<>());
+		}
 		return new EAMNativeResponse(data, new ArrayList<>());
 	}
 

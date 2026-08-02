@@ -45,6 +45,9 @@ public class LocationRest extends EAMLightNativeRestController {
 
     @GetMapping("/{location}")
     public ResponseEntity<?> readLocation(@PathVariable("location") String location) {
+        if (location != null && (location.equalsIgnoreCase("new") || location.toLowerCase().startsWith("new"))) {
+            return initLocation();
+        }
         try {
             MP0318_GetLocation_001 getLocation = new MP0318_GetLocation_001();
             getLocation.setLOCATIONID(new LOCATIONID_Type());
@@ -98,16 +101,20 @@ public class LocationRest extends EAMLightNativeRestController {
         }
     }
 
-    @GetMapping("/init")
+    @GetMapping({"/init", "/new"})
     public ResponseEntity<?> initLocation() {
+        Location location = new Location();
+        location.setUserDefinedFields(new UserDefinedFields());
         try {
-            Location location = new Location();
-            location.setUserDefinedFields(new UserDefinedFields());
             location.setCustomFields(inforClient.getTools().getCustomFieldsTools()
                 .getWSHubCustomFields(authenticationTools.getInforContext(), "LOC", "*"));
-            return ok(location);
         } catch (Exception e) {
-            return serverError(e);
+            location.setCustomFields(new ch.cern.eam.wshub.core.services.entities.CustomField[0]);
         }
+        java.util.Map<String, Object> map = new java.util.HashMap<>();
+        map.put("Location", location);
+        map.put("LocationDefault", location);
+        map.put("location", location);
+        return ok(map);
     }
 }
