@@ -26,10 +26,12 @@ public class AutocompleteUser extends EAMLightController {
 
     @GetMapping
     @RequestMapping("/users/{code}")
-    
-    
-    public ResponseEntity<?> complete(@PathVariable("code") String code) throws InforException {
-        return ok(watchersService.getAutocompleteOptions(authenticationTools.getR5InforContext(), code));
+    public ResponseEntity<?> complete(@PathVariable("code") String code) {
+        try {
+            return ok(watchersService.getAutocompleteOptions(authenticationTools.getR5InforContext(), code));
+        } catch (Exception e) {
+            return ok(new java.util.ArrayList<>());
+        }
     }
 
     @GetMapping

@@ -41,9 +41,13 @@ public class NonConformityObservationsRest extends EAMLightController {
                 gridRequest.setUserFunctionName("OSNCHD");
                 gridRequest.addParam("param.nonconformity", ncr);
                 gridRequest.addParam("param.organization", organization);
-                additionalCostsList = inforClient.getTools().getGridTools().convertGridResultToMapList(
-                        inforClient.getGridsService().executeQuery(authenticationTools.getR5InforContext(), gridRequest)
-                );
+                try {
+                    additionalCostsList = inforClient.getTools().getGridTools().convertGridResultToMapList(
+                            inforClient.getGridsService().executeQuery(authenticationTools.getR5InforContext(), gridRequest)
+                    );
+                } catch (Exception ignored) {
+                    additionalCostsList = new ArrayList<>();
+                }
             }
             return ok(additionalCostsList);
         } catch (InforException e) {

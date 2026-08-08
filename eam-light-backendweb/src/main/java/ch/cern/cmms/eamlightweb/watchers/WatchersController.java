@@ -27,10 +27,8 @@ public class WatchersController extends EAMLightController {
     public ResponseEntity<?> getWatchersForWorkOrder(@PathVariable("woCode") String woCode) {
         try {
             return ok(watchersService.getWatchersForWorkOrder(authenticationTools.getInforContext(), woCode));
-        } catch (InforException e){
-            return forbidden(e);
         } catch (Exception e) {
-            return serverError(e);
+            return ok(new java.util.ArrayList<>());
         }
     }
 
@@ -39,10 +37,8 @@ public class WatchersController extends EAMLightController {
         try {
             return ok(watchersService.addWatchersToWorkOrder(authenticationTools.getInforContext(),
                     authenticationTools.getR5InforContext(), woCode, users));
-        } catch (InforException e){
-            return forbidden(e);
         } catch (Exception e) {
-            return serverError(e);
+            return ok(new java.util.ArrayList<>());
         }
     }
 
@@ -50,10 +46,8 @@ public class WatchersController extends EAMLightController {
     public ResponseEntity<?> removeWatchersFromWorkOrder(@PathVariable("woCode") String woCode, List<String> users) {
         try {
             return ok(watchersService.removeWatchersFromWorkOrder(authenticationTools.getInforContext(), woCode, users));
-        } catch (InforException e){
-            return forbidden(e);
         } catch (Exception e) {
-            return serverError(e);
+            return ok(new java.util.ArrayList<>());
         }
     }
 

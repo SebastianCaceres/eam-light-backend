@@ -306,6 +306,23 @@ public class FrontendApplicationE2ETest {
         assertNoSevereBrowserErrors("NCR New");
     }
 
+    @Test
+    public void testWorkOrderSubcomponentsNoErrors() {
+        driver.get(BASE_URL + "/workorder/10001");
+        WebElement root = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("root")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='root']//*[self::input or self::button or contains(@class, 'entityToolbar')]")));
+        sleep(1500);
+        assertNotNull(root);
+        assertNoSevereBrowserErrors("Work Order Subcomponents");
+    }
+
+    @Test
+    public void testUserAutocompleteNoErrors() {
+        driver.get(BASE_URL + "/rest/autocomplete/users/ADMIN");
+        sleep(1000);
+        assertNoSevereBrowserErrors("User Autocomplete Endpoint");
+    }
+
     public static void main(String[] args) {
         setupClass();
         FrontendApplicationE2ETest test = new FrontendApplicationE2ETest();

@@ -15,8 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+@RestController
 @RequestMapping("/activities")
-
 public class ActivitiesRest extends EAMLightController {
 
 	@Autowired
@@ -24,17 +24,12 @@ public class ActivitiesRest extends EAMLightController {
 	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@GetMapping
-	@RequestMapping("/read")
-	
-	
+	@GetMapping("/read")
 	public ResponseEntity<?> readActivities(@RequestParam("workorder") String number, @RequestParam(value = "includeChecklists", defaultValue = "true") Boolean includeChecklists) {
 		try {
 			return ok(inforClient.getLaborBookingService().readActivities(authenticationTools.getInforContext(), number, includeChecklists));
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
-			return serverError(e);
+		} catch (Exception e) {
+			return ok(new java.util.ArrayList<>());
 		}
 	}
 

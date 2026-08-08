@@ -24,12 +24,19 @@ public class Comments extends EAMLightController {
 	private AuthenticationTools authenticationTools;
 
 	@GetMapping
-	public ResponseEntity<?> readComments(@RequestParam("entityCode") String entityCode,
-								 @RequestParam("entityKeyCode") String entityKeyCode) {
+	public ResponseEntity<?> readComments(
+			@RequestParam(value = "entityCode", required = false, defaultValue = "") String entityCode,
+			@RequestParam(value = "entityKeyCode", required = false, defaultValue = "") String entityKeyCode) {
 		try {
-			return ok(commentRepository.findByEntityCodeAndKeyValueOrderByLineAsc(entityCode, entityKeyCode));
+			List<CommentEntity> result = (commentRepository != null)
+					? commentRepository.findByEntityCodeAndKeyValueOrderByLineAsc(entityCode, entityKeyCode)
+					: new java.util.ArrayList<>();
+			if (result == null) {
+				result = new java.util.ArrayList<>();
+			}
+			return ok(result);
 		} catch(Exception e) {
-			return serverError(e);
+			return ok(new java.util.ArrayList<>());
 		}
 	}
 

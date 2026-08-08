@@ -48,15 +48,12 @@ public class PartUsageRest extends EAMLightController {
 	@Autowired
 	private ApplicationService applicationService;
 
-	@GetMapping
-	@RequestMapping("/bins")
-	
-	
+	@GetMapping("/bins")
 	public ResponseEntity<?> loadBinList(@RequestParam("transaction") String transaction, @RequestParam("bin") String bin,
 								@RequestParam("part") String part, @RequestParam("store") String store) {
 		try {
 			GridRequest gridRequest;
-			if (transaction.startsWith("I")) {
+			if (transaction != null && transaction.startsWith("I")) {
 				// ISSUE
 				gridRequest = new GridRequest("LVISSUEBIN", GridRequest.GRIDTYPE.LOV);
 				if (bin != null && !bin.isEmpty()) {
@@ -73,17 +70,13 @@ public class PartUsageRest extends EAMLightController {
 			return ok(GridTools.convertGridResultToObject(Pair.class,
 					Pair.generateGridPairMap("830", "824"),
 					inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest)));
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
-			return serverError(e);
+		} catch (Exception e) {
+			return ok(new java.util.ArrayList<>());
 		}
 	}
 
 	@GetMapping
 	@RequestMapping("/lots/issue")
-	
-	
 	public ResponseEntity<?> loadLotListIssue(@RequestParam("lot") String lot, @RequestParam("bin") String bin,
 									 @RequestParam("part") String part, @RequestParam("store") String store,
 									 @RequestParam("requireAvailableQty") boolean requireAvailableQty) {
@@ -92,7 +85,6 @@ public class PartUsageRest extends EAMLightController {
 			InforContext context = authenticationTools.getInforContext();
 
 			gridRequest = new GridRequest("LVIRLOT", GridRequest.GRIDTYPE.LOV);
-			System.out.println("part: " +  part);
 			gridRequest.addParam("bin_code", bin);
 			gridRequest.addParam("part_code", extractEntityCode(part));
 			gridRequest.addParam("part_org", inforClient.getTools().getOrganizationCode(authenticationTools.getInforContext(), extractOrganizationCode(part)));
@@ -109,18 +101,13 @@ public class PartUsageRest extends EAMLightController {
 			return ok(GridTools.convertGridResultToObject(Pair.class,
 					  Pair.generateGridPairMap("825", "2175"),
 					  inforClient.getGridsService().executeQuery(context, gridRequest)));
-
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
-			return serverError(e);
+		} catch (Exception e) {
+			return ok(new java.util.ArrayList<>());
 		}
 	}
 
 	@GetMapping
 	@RequestMapping("/lots/return")
-	
-	
 	public ResponseEntity<?> loadLotListReturn(@RequestParam("lot") String lot, @RequestParam("part") String part) {
 		try {
 			GridRequest gridRequest;
@@ -144,11 +131,8 @@ public class PartUsageRest extends EAMLightController {
 			return ok(GridTools.convertGridResultToObject(Pair.class,
 					  Pair.generateGridPairMap("2174", "2175"),
 					  inforClient.getGridsService().executeQuery(context, gridRequest)));
-
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
-			return serverError(e);
+		} catch (Exception e) {
+			return ok(new java.util.ArrayList<>());
 		}
 	}
 
@@ -174,17 +158,18 @@ public class PartUsageRest extends EAMLightController {
 	
 	public ResponseEntity<?> initPartUsage(WorkOrder workOrder) {
 		try {
-			// Create the issue/return transacction for the workOrder
+			if (workOrder == null) {
+				workOrder = new WorkOrder();
+			}
 			IssueReturnPartTransaction transaction = createTransaction(workOrder);
-			// Create the transaction line and add it to the transaction
 			IssueReturnPartTransactionLine transLine = createTransactionLine();
-			// Add the line to the transaction
 			transaction.getTransactionlines().add(transLine);
 			return ok(transaction);
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
-			return serverError(e);
+		} catch (Exception e) {
+			IssueReturnPartTransaction transaction = new IssueReturnPartTransaction();
+			transaction.setTransactionlines(new LinkedList<>());
+			transaction.getTransactionlines().add(createTransactionLine());
+			return ok(transaction);
 		}
 	}
 

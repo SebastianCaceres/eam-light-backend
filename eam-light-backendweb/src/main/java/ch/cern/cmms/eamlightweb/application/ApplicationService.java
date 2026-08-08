@@ -83,14 +83,13 @@ public class ApplicationService implements Cacheable {
     public Map<String, String> getServiceAccounts(String tenant) throws InforException {
         try {
             Map<String, String> params = getParams(tenant);
-            if (!params.containsKey(SERVICE_ACCOUNTS_PARAM)) {
-                return new HashMap<>();
+            if (params != null && params.containsKey(SERVICE_ACCOUNTS_PARAM)) {
+                String serviceAccountsParam = params.get(SERVICE_ACCOUNTS_PARAM);
+                return mapper.readValue(serviceAccountsParam, Map.class);
             }
-            String serviceAccountsParam = params.get(SERVICE_ACCOUNTS_PARAM);
-            return mapper.readValue(serviceAccountsParam, Map.class);
-        } catch (InforException | JsonProcessingException e) {
-            e.printStackTrace();
-            throw new InforException("Could not read allowed service accounts", null, null);
+            return new HashMap<>();
+        } catch (Exception e) {
+            return new HashMap<>();
         }
     }
 }

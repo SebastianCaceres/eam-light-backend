@@ -25,15 +25,28 @@ public class EAMNativeResponse<T> {
 	}
 
 	public static<T> EAMNativeResponse fromData(T data) {
-		if (data != null) {
-			if (data instanceof java.util.Map && ((java.util.Map<?,?>)data).containsKey("ResultData")) {
-				return new EAMNativeResponse(data, new ArrayList<>());
-			}
-			java.util.Map<String, Object> resultDataWrapper = new java.util.HashMap<>();
-			resultDataWrapper.put("ResultData", data);
-			return new EAMNativeResponse(resultDataWrapper, new ArrayList<>());
+		if (data == null) {
+			java.util.Map<String, Object> emptyMap = new java.util.HashMap<>();
+			emptyMap.put("DATARECORD", new java.util.ArrayList<>());
+			emptyMap.put("data", new java.util.ArrayList<>());
+			java.util.Map<String, Object> wrapper = new java.util.HashMap<>();
+			wrapper.put("ResultData", emptyMap);
+			return new EAMNativeResponse(wrapper, new ArrayList<>());
 		}
-		return new EAMNativeResponse(data, new ArrayList<>());
+		if (data instanceof java.util.List) {
+			java.util.Map<String, Object> listMap = new java.util.HashMap<>();
+			listMap.put("DATARECORD", data);
+			listMap.put("data", data);
+			java.util.Map<String, Object> wrapper = new java.util.HashMap<>();
+			wrapper.put("ResultData", listMap);
+			return new EAMNativeResponse(wrapper, new ArrayList<>());
+		}
+		if (data instanceof java.util.Map && ((java.util.Map<?,?>)data).containsKey("ResultData")) {
+			return new EAMNativeResponse(data, new ArrayList<>());
+		}
+		java.util.Map<String, Object> resultDataWrapper = new java.util.HashMap<>();
+		resultDataWrapper.put("ResultData", data);
+		return new EAMNativeResponse(resultDataWrapper, new ArrayList<>());
 	}
 
 	public static EAMNativeResponse fromException(Exception exception) {
@@ -128,6 +141,17 @@ public class EAMNativeResponse<T> {
 
 	@JsonProperty("Result")
 	public T getResult() {
+		return result;
+	}
+
+	@JsonProperty("data")
+	public Object getData() {
+		if (result instanceof java.util.Map) {
+			java.util.Map<?,?> map = (java.util.Map<?,?>) result;
+			if (map.containsKey("ResultData")) {
+				return map.get("ResultData");
+			}
+		}
 		return result;
 	}
 

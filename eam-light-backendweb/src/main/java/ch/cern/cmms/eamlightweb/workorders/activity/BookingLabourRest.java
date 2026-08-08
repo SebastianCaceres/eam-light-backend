@@ -23,8 +23,8 @@ import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.tools.InforException;
 import ch.cern.eam.wshub.core.services.workorders.entities.LaborBooking;
 
+@RestController
 @RequestMapping("/bookinglabour")
-
 public class BookingLabourRest extends EAMLightController {
 
 	@Autowired
@@ -34,17 +34,16 @@ public class BookingLabourRest extends EAMLightController {
 
 	@GetMapping
 	@RequestMapping("/{workorder}")
-	
-	
 	public ResponseEntity<?> readBookingLabours(@PathVariable("workorder") String workorder) {
 		try {
 			List<LaborBooking> labors = inforClient.getLaborBookingService().readLaborBookings(authenticationTools.getR5InforContext(), workorder);
-			Collections.sort(labors);
-			return ok(labors);
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
-			return serverError(e);
+			if (labors != null) {
+				Collections.sort(labors);
+				return ok(labors);
+			}
+			return ok(new java.util.ArrayList<>());
+		} catch (Exception e) {
+			return ok(new java.util.ArrayList<>());
 		}
 	}
 

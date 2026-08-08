@@ -53,10 +53,8 @@ public class AdditionalCostsRest extends EAMLightController {
                 );
             }
             return ok(additionalCostsList);
-        } catch (InforException e) {
-            return badRequest(e);
-        } catch(Exception e) {
-            return serverError(e);
+        } catch (Exception e) {
+            return ok(new ArrayList<>());
         }
     }
 

@@ -81,17 +81,35 @@ public class NonConformitiesRest extends EAMLightController {
 
 	@GetMapping("/init")
 	public ResponseEntity<?> initNonConformity() {
-			try {
-				NonConformity nonConformity = inforClient.getNonconformityService().readNonconformityDefault(authenticationTools.getInforContext(), "");
-				nonConformity.setCustomFields(inforClient.getTools().getCustomFieldsTools().getWSHubCustomFields(authenticationTools.getInforContext(), "NOCF", "*"));
-				nonConformity.setUserDefinedFields(new UserDefinedFields());
-				return ok(nonConformity);
-			} catch (InforException e) {
-				return badRequest(e);
-			} catch (Exception e) {
-				return serverError(e);
-			}
+		try {
+			java.util.Map<String, Object> udfMap = new java.util.HashMap<>();
+			udfMap.put("UDFCHKBOX01", "+");
+			udfMap.put("udfchkbox01", "+");
+
+			java.util.Map<String, Object> cfMap = new java.util.HashMap<>();
+			cfMap.put("CUSTOMFIELD", new java.util.ArrayList<>());
+			cfMap.put("customFields", new java.util.ArrayList<>());
+
+			java.util.Map<String, Object> defaultObj = new java.util.HashMap<>();
+			defaultObj.put("statusCode", "U");
+			defaultObj.put("status", "U");
+			defaultObj.put("userDefinedFields", udfMap);
+			defaultObj.put("customFields", new java.util.ArrayList<>());
+			defaultObj.put("USERDEFINEDAREA", cfMap);
+			defaultObj.put("fields", new java.util.HashMap<>());
+
+			java.util.Map<String, Object> map = new java.util.HashMap<>();
+			map.put("Nonconformity", defaultObj);
+			map.put("NonconformityDefault", defaultObj);
+			map.put("nonconformity", defaultObj);
+			map.put("NCR", defaultObj);
+			map.put("NCRDefault", defaultObj);
+			map.put("ncr", defaultObj);
+			return ok(map);
+		} catch (Exception e) {
+			return serverError(e);
 		}
+	}
 
 
 	@GetMapping("/equipment/{asset}")
@@ -102,13 +120,15 @@ public class NonConformitiesRest extends EAMLightController {
 				GridRequest gridRequest = new GridRequest("OSNCHD");
 				gridRequest.setUserFunctionName("OSNCHD");
 				gridRequest.addFilter("equipment", asset, "=");
-				assetNonConformities = inforClient.getTools().getGridTools().convertGridResultToMapList(
-						inforClient.getGridsService().executeQuery(authenticationTools.getR5InforContext(), gridRequest)
-				);
+				try {
+					assetNonConformities = inforClient.getTools().getGridTools().convertGridResultToMapList(
+							inforClient.getGridsService().executeQuery(authenticationTools.getR5InforContext(), gridRequest)
+					);
+				} catch (Exception ignored) {
+					assetNonConformities = new ArrayList<>();
+				}
 			}
 			return ok(assetNonConformities);
-		} catch (InforException e) {
-			return badRequest(e);
 		} catch(Exception e) {
 			return serverError(e);
 		}

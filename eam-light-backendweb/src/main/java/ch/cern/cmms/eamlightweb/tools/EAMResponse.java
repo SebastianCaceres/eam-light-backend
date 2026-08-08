@@ -24,6 +24,9 @@ public class EAMResponse<T> {
 	}
 
 	public static<T> EAMResponse fromData(T data) {
+		if (data == null) {
+			return new EAMResponse(new java.util.ArrayList<>(), new ArrayList<>());
+		}
 		return new EAMResponse(data, new ArrayList<>());
 	}
 

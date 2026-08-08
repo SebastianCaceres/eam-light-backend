@@ -22,6 +22,15 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EnableJpaRepositories(basePackages = {"ch.cern.eam.wshub.core.repositories", "ch.cern.cmms.eamlightejb"})
 public class EamLightApplication {
+    static {
+        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
+    }
+
+    @org.springframework.context.annotation.Bean
+    public org.springframework.boot.web.server.WebServerFactoryCustomizer<org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory> tomcatCustomizer() {
+        return factory -> factory.addConnectorCustomizers(connector -> connector.setProperty("encodedSolidusHandling", "passthrough"));
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(EamLightApplication.class, args);
     }

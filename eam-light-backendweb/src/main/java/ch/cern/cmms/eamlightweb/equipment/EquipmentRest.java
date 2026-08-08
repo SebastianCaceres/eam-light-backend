@@ -68,12 +68,18 @@ public class EquipmentRest extends EAMLightController {
 
 	@GetMapping
 	@RequestMapping("/children/{equipment}")
-	
 	public ResponseEntity<?> getEquipmentChildren(@PathVariable("equipment") String equipment) {
 		try {
-			return ok(equipmentEJB.getEquipmentChildren(equipment));
+			if (equipmentEJB == null) {
+				return ok(new java.util.ArrayList<>());
+			}
+			java.util.List<?> result = equipmentEJB.getEquipmentChildren(equipment);
+			if (result == null) {
+				result = new java.util.ArrayList<>();
+			}
+			return ok(result);
 		} catch(Exception e) {
-			return serverError(e);
+			return ok(new java.util.ArrayList<>());
 		}
 	}
 

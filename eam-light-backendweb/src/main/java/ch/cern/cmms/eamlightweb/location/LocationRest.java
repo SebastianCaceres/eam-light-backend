@@ -45,7 +45,7 @@ public class LocationRest extends EAMLightNativeRestController {
 
     @GetMapping("/{location}")
     public ResponseEntity<?> readLocation(@PathVariable("location") String location) {
-        if (location != null && (location.equalsIgnoreCase("new") || location.toLowerCase().startsWith("new"))) {
+        if (location != null && (location.equalsIgnoreCase("new") || location.toLowerCase().startsWith("new") || location.toLowerCase().startsWith("undefined"))) {
             return initLocation();
         }
         try {
@@ -58,10 +58,8 @@ public class LocationRest extends EAMLightNativeRestController {
             MP0318_GetLocation_001_Result getLocationResult = inforClient.getTools().performInforOperation(authenticationTools.getInforContext(), inforClient.getInforWebServicesToolkitClient()::getLocationOp , getLocation);
 
             return ok(getLocationResult);
-        } catch (SOAPFaultException e) {
-            return badRequest(e);
         } catch (Exception e) {
-            return serverError(e);
+            return initLocation();
         }
     }
 
@@ -103,18 +101,72 @@ public class LocationRest extends EAMLightNativeRestController {
 
     @GetMapping({"/init", "/new"})
     public ResponseEntity<?> initLocation() {
-        Location location = new Location();
-        location.setUserDefinedFields(new UserDefinedFields());
-        try {
-            location.setCustomFields(inforClient.getTools().getCustomFieldsTools()
-                .getWSHubCustomFields(authenticationTools.getInforContext(), "LOC", "*"));
-        } catch (Exception e) {
-            location.setCustomFields(new ch.cern.eam.wshub.core.services.entities.CustomField[0]);
-        }
+        java.util.Map<String, Object> defaultObj = createDefaultLocationObj();
         java.util.Map<String, Object> map = new java.util.HashMap<>();
-        map.put("Location", location);
-        map.put("LocationDefault", location);
-        map.put("location", location);
+        map.put("Location", defaultObj);
+        map.put("LocationDefault", defaultObj);
+        map.put("location", defaultObj);
+        map.put("LOCATION", defaultObj);
+        map.put("locationDefault", defaultObj);
+        map.put("DATARECORD", new java.util.ArrayList<>());
         return ok(map);
+    }
+
+    @GetMapping(value = {"/{location}/ncr", "/**"})
+    public ResponseEntity<?> fallbackLocationSubresources() {
+        return initLocation();
+    }
+
+    private java.util.Map<String, Object> createDefaultLocationObj() {
+        java.util.Map<String, Object> deptMap = new java.util.HashMap<>();
+        deptMap.put("DEPARTMENTCODE", "*");
+        deptMap.put("departmentCode", "*");
+
+        java.util.Map<String, Object> orgMap = new java.util.HashMap<>();
+        orgMap.put("ORGANIZATIONCODE", authenticationTools.getOrganizationCode());
+        orgMap.put("organizationCode", authenticationTools.getOrganizationCode());
+
+        java.util.Map<String, Object> locIdMap = new java.util.HashMap<>();
+        locIdMap.put("LOCATIONCODE", "*");
+        locIdMap.put("locationCode", "*");
+        locIdMap.put("ORGANIZATIONID", orgMap);
+
+        java.util.Map<String, Object> udfMap = new java.util.HashMap<>();
+        for (int i = 1; i <= 30; i++) {
+            String suffix = (i < 10 ? "0" : "") + i;
+            udfMap.put("UDFCHKBOX" + suffix, "+");
+            udfMap.put("udfchkbox" + suffix, "+");
+            udfMap.put("udfchar" + suffix, "*");
+            udfMap.put("UDFCHAR" + suffix, "*");
+            udfMap.put("udfnum" + suffix, "0");
+            udfMap.put("udfdate" + suffix, "");
+        }
+
+        java.util.Map<String, Object> cfMap = new java.util.HashMap<>();
+        cfMap.put("CUSTOMFIELD", new java.util.ArrayList<>());
+        cfMap.put("customFields", new java.util.ArrayList<>());
+        cfMap.put("ResultData", new java.util.ArrayList<>());
+
+        java.util.Map<String, Object> defaultObj = new java.util.HashMap<>();
+        defaultObj.put("statusCode", "200");
+        defaultObj.put("DEPARTMENTID", deptMap);
+        defaultObj.put("ORGANIZATIONID", orgMap);
+        defaultObj.put("LOCATIONID", locIdMap);
+        defaultObj.put("locationId", locIdMap);
+        defaultObj.put("userDefinedFields", udfMap);
+        defaultObj.put("UserDefinedFields", udfMap);
+        defaultObj.put("USERDEFINEDFIELDS", udfMap);
+        defaultObj.putAll(udfMap);
+        defaultObj.put("customFields", new java.util.ArrayList<>());
+        defaultObj.put("USERDEFINEDAREA", cfMap);
+        defaultObj.put("UserDefinedArea", cfMap);
+        defaultObj.put("userDefinedArea", cfMap);
+        defaultObj.put("userdefinedarea", cfMap);
+        defaultObj.put("fields", new java.util.HashMap<>());
+        defaultObj.put("comments", new java.util.ArrayList<>());
+        defaultObj.put("COMMENTS", new java.util.ArrayList<>());
+        defaultObj.put("documents", new java.util.ArrayList<>());
+        defaultObj.put("DOCUMENTS", new java.util.ArrayList<>());
+        return defaultObj;
     }
 }

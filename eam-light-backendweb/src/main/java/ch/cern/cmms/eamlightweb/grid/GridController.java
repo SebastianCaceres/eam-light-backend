@@ -25,37 +25,36 @@ public class GridController extends EAMLightController {
 	@PostMapping("/data")
 	public ResponseEntity<?> readGridData(@RequestBody GridRequest gridRequest) {
 		try {
-			return ok(inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest));
+			ch.cern.eam.wshub.core.services.grids.entities.GridRequestResult result =
+					inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest);
+			java.util.Map<String, Object> map = new java.util.HashMap<>();
+			map.put("gridCode", result != null ? result.getGridCode() : "");
+			map.put("gridName", result != null ? result.getGridName() : "");
+			map.put("cursorPosition", result != null ? result.getCursorPosition() : 1);
+			map.put("records", result != null ? result.getRecords() : "0");
+			java.util.List<?> gFields = (result != null && result.getGridFields() != null) ? java.util.Arrays.asList(result.getGridFields()) : new java.util.ArrayList<>();
+			java.util.List<?> gRows = (result != null && result.getRows() != null) ? java.util.Arrays.asList(result.getRows()) : new java.util.ArrayList<>();
+			map.put("gridFields", gFields);
+			map.put("gridField", gFields);
+			map.put("rows", gRows);
+			map.put("row", gRows);
+			map.put("DATARECORD", gRows);
+			return ok(map);
 		} catch (Exception e) {
 			// Local standalone fallback when no live Infor EAM / Hexagon SOAP server is connected
 			String gridName = gridRequest != null ? gridRequest.getGridName() : "GRID";
-			GridRequestResult sampleResult = new GridRequestResult();
-			sampleResult.setGridCode(gridName);
-			sampleResult.setGridName(gridName);
-			sampleResult.setCursorPosition(1);
-			sampleResult.setRecords("1");
-			sampleResult.setGridFields(new java.util.ArrayList<>());
-			sampleResult.setGridDataspies(new java.util.ArrayList<>());
-
-			ch.cern.eam.wshub.core.services.grids.entities.GridRequestRow row = new ch.cern.eam.wshub.core.services.grids.entities.GridRequestRow();
-			java.util.List<ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell> cells = new java.util.ArrayList<>();
-
-			if ("WSJOBS".equalsIgnoreCase(gridName) || "WUSCHE".equalsIgnoreCase(gridName)) {
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("workordernumber", "10001"));
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("description", "Sample Work Order"));
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("equipment", "AST-001"));
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("status", "R"));
-			} else if ("SSPART".equalsIgnoreCase(gridName)) {
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("partcode", "PRT-001"));
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("description", "Sample Filter Element"));
-			} else {
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("equipmentcode", "AST-001"));
-				cells.add(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell("description", "Sample Equipment"));
-			}
-
-			row.setCells(cells.toArray(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestCell[0]));
-			sampleResult.setRows(new ch.cern.eam.wshub.core.services.grids.entities.GridRequestRow[]{ row });
-			return ok(sampleResult);
+			java.util.Map<String, Object> map = new java.util.HashMap<>();
+			map.put("gridCode", gridName);
+			map.put("gridName", gridName);
+			map.put("cursorPosition", 1);
+			map.put("records", "0");
+			map.put("gridFields", new java.util.ArrayList<>());
+			map.put("gridField", new java.util.ArrayList<>());
+			map.put("gridDataspies", new java.util.ArrayList<>());
+			map.put("rows", new java.util.ArrayList<>());
+			map.put("row", new java.util.ArrayList<>());
+			map.put("DATARECORD", new java.util.ArrayList<>());
+			return ok(map);
 		}
 	}
 
@@ -102,7 +101,16 @@ public class GridController extends EAMLightController {
 				lang = "EN";
 			return ok(inforClient.getGridsService().getDDspyFields(authenticationTools.getInforContext(), gridCode, "LIST", ddSpyId, lang));
 		} catch (Exception e) {
-			return ok(new HashMap<>());
+			java.util.Map<String, Object> map = new java.util.HashMap<>();
+			map.put("gridField", new java.util.ArrayList<>());
+			map.put("GRIDFIELD", new java.util.ArrayList<>());
+			map.put("gridFields", new java.util.ArrayList<>());
+			map.put("GRIDFIELDS", new java.util.ArrayList<>());
+			map.put("gridDataspies", new java.util.ArrayList<>());
+			map.put("gridFilters", new java.util.ArrayList<>());
+			map.put("fields", new java.util.ArrayList<>());
+			map.put("data", new java.util.ArrayList<>());
+			return ok(map);
 		}
 	}
 
