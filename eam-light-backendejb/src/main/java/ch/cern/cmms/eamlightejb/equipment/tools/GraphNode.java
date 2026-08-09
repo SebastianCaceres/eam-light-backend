@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.cern.cmms.eamlightejb.equipment.EquipmentChildren;
+import ch.cern.eam.wshub.core.services.equipment.entities.EquipmentChildren;
 import ch.cern.eam.wshub.core.annotations.GridField;
 
 public class GraphNode {

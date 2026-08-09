@@ -1,7 +1,9 @@
 package ch.cern.cmms.eamlightejb.equipment;
 
-import ch.cern.cmms.eamlightejb.equipment.repository.EquipmentChildrenRepository;
-import ch.cern.cmms.eamlightejb.equipment.repository.EquipmentTreeNodeRepository;
+import ch.cern.eam.wshub.core.repositories.EquipmentChildrenRepository;
+import ch.cern.eam.wshub.core.repositories.EquipmentTreeNodeRepository;
+import ch.cern.eam.wshub.core.services.equipment.entities.EquipmentChildren;
+import ch.cern.eam.wshub.core.services.equipment.entities.EquipmentTreeNode;
 import ch.cern.cmms.eamlightejb.equipment.tools.GraphNode;
 import ch.cern.cmms.eamlightejb.index.IndexEJB;
 import ch.cern.cmms.eamlightejb.index.IndexGrids;
@@ -28,10 +30,10 @@ public class EquipmentEJB {
 	@Autowired
 	private IndexGrids indexGrids;
 
-	@Autowired
+	@Autowired(required = false)
 	private EquipmentChildrenRepository equipmentChildrenRepository;
 
-	@Autowired
+	@Autowired(required = false)
 	private EquipmentTreeNodeRepository equipmentTreeNodeRepository;
 
 	/**
@@ -42,7 +44,10 @@ public class EquipmentEJB {
 	}
 
 	public List<EquipmentChildren> getEquipmentChildren(String equipment) {
-		return equipmentChildrenRepository.getEquipmentChildren(equipment);
+		if (equipmentChildrenRepository != null) {
+			return equipmentChildrenRepository.getEquipmentChildren(equipment);
+		}
+		return new ArrayList<>();
 	}
 
 	public List<Entity> getEquipmentSearchResults(String code, List<String> customEntityTypes, InforContext inforContext) throws InforException {
@@ -70,14 +75,14 @@ public class EquipmentEJB {
 	}
 
 	public List<GraphNode> getEquipmentStructureTree(String equipment) {
-		if (!inforClient.getTools().isDatabaseConnectionConfigured()) {
+		if (!inforClient.getTools().isDatabaseConnectionConfigured() || equipmentTreeNodeRepository == null) {
 			return new LinkedList<>();
 		}
 
 		// Fetch tree as list
 		List<EquipmentTreeNode> result = equipmentTreeNodeRepository.getTree(equipment);
 
-		if (result.isEmpty()) {
+		if (result == null || result.isEmpty()) {
 			return new LinkedList<>();
 		}
 
@@ -105,7 +110,7 @@ public class EquipmentEJB {
 		}
 
 		// Fetch root parents if not a location
-		if(!"L".equals(rootNode.getType())) {
+		if(!"L".equals(rootNode.getType()) && equipmentChildrenRepository != null) {
 			List<EquipmentChildren> parents = equipmentChildrenRepository.getEquipmentParents(equipment);
 			rootNode.setParents(parents);
 		}
