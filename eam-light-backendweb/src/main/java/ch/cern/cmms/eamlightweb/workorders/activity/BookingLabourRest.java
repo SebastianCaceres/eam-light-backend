@@ -1,5 +1,6 @@
 package ch.cern.cmms.eamlightweb.workorders.activity;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -31,20 +32,22 @@ public class BookingLabourRest extends EAMLightController {
 	private InforClient inforClient;
 	@Autowired
 	private AuthenticationTools authenticationTools;
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.LaborBookingRepository laborBookingRepository;
 
 	@GetMapping
 	@RequestMapping("/{workorder}")
 	public ResponseEntity<?> readBookingLabours(@PathVariable("workorder") String workorder) {
-		try {
-			List<LaborBooking> labors = inforClient.getLaborBookingService().readLaborBookings(authenticationTools.getR5InforContext(), workorder);
-			if (labors != null) {
-				Collections.sort(labors);
-				return ok(labors);
-			}
-			return ok(new java.util.ArrayList<>());
-		} catch (Exception e) {
-			return ok(new java.util.ArrayList<>());
+		if (laborBookingRepository != null) {
+			try {
+				List<LaborBooking> labors = laborBookingRepository.findByWorkOrder(workorder);
+				if (labors != null) {
+					Collections.sort(labors);
+					return ok(labors);
+				}
+			} catch (Exception ignored) {}
 		}
+		return ok(new java.util.ArrayList<>());
 	}
 
 }

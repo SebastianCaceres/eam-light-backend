@@ -123,33 +123,44 @@ public class ScreenService implements Cacheable {
     }
 
     public Map<String, EamFunction> getFunctions(InforContext context) throws InforException {
-        GridRequest gridRequestLayout = new GridRequest("BSFUNC", 1000);
-        gridRequestLayout.addFilter("parentscreencode", String.join(",", screens), "IN", JOINER.OR);
-        gridRequestLayout.addFilter("screencode", String.join(",", screens), "IN");
+        try {
+            GridRequest gridRequestLayout = new GridRequest("BSFUNC", 1000);
+            gridRequestLayout.addFilter("parentscreencode", String.join(",", screens), "IN", JOINER.OR);
+            gridRequestLayout.addFilter("screencode", String.join(",", screens), "IN");
 
-        Map<String, EamFunction> functions = GridTools.convertGridResultToMap(EamFunction.class,
-                "screencode",
-                null,
-                inforClient.getGridsService().executeQuery(context, gridRequestLayout));
+            Map<String, EamFunction> functions = GridTools.convertGridResultToMap(EamFunction.class,
+                    "screencode",
+                    null,
+                    inforClient.getGridsService().executeQuery(context, gridRequestLayout));
 
-        GridRequest startUpActionTypesGridRequest = new GridRequest("BSUCOD_HDR", 300);
-        startUpActionTypesGridRequest.addParam("param.entitycode", "FAQU");
+            GridRequest startUpActionTypesGridRequest = new GridRequest("BSUCOD_HDR", 300);
+            startUpActionTypesGridRequest.addParam("param.entitycode", "FAQU");
 
-        Map<String, String> startUpActionDescriptionToCode = GridTools.convertGridResultToMap(
-                "usercodedescription",
-                "systemcode",
-                inforClient.getGridsService().executeQuery(context, startUpActionTypesGridRequest));
+            Map<String, String> startUpActionDescriptionToCode = GridTools.convertGridResultToMap(
+                    "usercodedescription",
+                    "systemcode",
+                    inforClient.getGridsService().executeQuery(context, startUpActionTypesGridRequest));
 
-        functions.values().forEach(
-                eamFunction -> eamFunction.setStartUpModeDisplayCode(startUpActionDescriptionToCode.get(eamFunction.getStartUpModeDisplayDescription()))
-        );
+            functions.values().forEach(
+                    eamFunction -> eamFunction.setStartUpModeDisplayCode(startUpActionDescriptionToCode.get(eamFunction.getStartUpModeDisplayDescription()))
+            );
 
-        screens.forEach(screen -> functions.computeIfPresent(screen, (screenCode, eamFunction) -> {
-            eamFunction.setParentScreenCode(screenCode);
-            return eamFunction;
-        }));
+            screens.forEach(screen -> functions.computeIfPresent(screen, (screenCode, eamFunction) -> {
+                eamFunction.setParentScreenCode(screenCode);
+                return eamFunction;
+            }));
 
-        return functions;
+            return functions;
+        } catch (Exception e) {
+            Map<String, EamFunction> fallback = new HashMap<>();
+            for (String s : screens) {
+                EamFunction fn = new EamFunction();
+                fn.setScreenCode(s);
+                fn.setParentScreenCode(s);
+                fallback.put(s, fn);
+            }
+            return fallback;
+        }
     }
 
     public Map<String, List<Map<String, String>>> getReports(InforContext context, String userGroup) throws InforException {

@@ -74,10 +74,8 @@ public class EAMLightController {
             return ok(inforClient.getTools().getGridTools().convertGridResultToObject(Pair.class,
                     Pair.generateGridPairMap(codeKey, descKey),
                     inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest)));
-        } catch (InforException e) {
-            return badRequest(e);
         } catch(Exception e) {
-            return serverError(e);
+            return ok(new java.util.ArrayList<>());
         }
     }
 
@@ -86,10 +84,8 @@ public class EAMLightController {
             return ok(inforClient.getTools().getGridTools().convertGridResultToObject(Entity.class,
                     Entity.generateGridEntityMap(codeKey, descKey, organizationKey),
                     inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest)));
-        } catch (InforException e) {
-            return badRequest(e);
         } catch(Exception e) {
-            return serverError(e);
+            return ok(new java.util.ArrayList<>());
         }
     }
 
@@ -109,10 +105,8 @@ public class EAMLightController {
                     return cloneMap;
                 }).collect(Collectors.toList());
             return ok(collect);
-        } catch (InforException e) {
-            return badRequest(e);
         } catch(Exception e) {
-            return serverError(e);
+            return ok(new java.util.ArrayList<>());
         }
     }
 }

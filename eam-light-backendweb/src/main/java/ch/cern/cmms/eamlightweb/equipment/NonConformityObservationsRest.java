@@ -30,30 +30,29 @@ public class NonConformityObservationsRest extends EAMLightController {
     @Autowired
     private AuthenticationTools authenticationTools;
 
+    @Autowired(required = false)
+    private ch.cern.eam.wshub.core.repositories.NCRObservationRepository ncrObservationRepository;
+
     @GetMapping("/{ncr}")
     public ResponseEntity<?> loadNonConformityObservations(@PathVariable("ncr") String ncr) {
         try {
-            List<Map<String, String>> additionalCostsList = new ArrayList<>();
-            if (ncr != null) {
-                String organization = authenticationTools.getR5InforContext().getOrganizationCode();
-
-                GridRequest gridRequest = new GridRequest("OSNCHD_OBS");
-                gridRequest.setUserFunctionName("OSNCHD");
-                gridRequest.addParam("param.nonconformity", ncr);
-                gridRequest.addParam("param.organization", organization);
+            List<Map<String, String>> observationsList = new ArrayList<>();
+            if (ncr != null && ncrObservationRepository != null) {
                 try {
-                    additionalCostsList = inforClient.getTools().getGridTools().convertGridResultToMapList(
-                            inforClient.getGridsService().executeQuery(authenticationTools.getR5InforContext(), gridRequest)
-                    );
-                } catch (Exception ignored) {
-                    additionalCostsList = new ArrayList<>();
-                }
+                    List<ch.cern.eam.wshub.core.services.equipment.entities.NCRObservation> entities = ncrObservationRepository.findByNonConformityCode(ncr);
+                    if (entities != null) {
+                        observationsList = entities.stream().map(ent -> {
+                            Map<String, String> m = new java.util.HashMap<>();
+                            m.put("nonconformity", ent.getNonConformityCode());
+                            m.put("observation", ent.getCode());
+                            return m;
+                        }).collect(java.util.stream.Collectors.toList());
+                    }
+                } catch (Exception ignored) {}
             }
-            return ok(additionalCostsList);
-        } catch (InforException e) {
-            return badRequest(e);
+            return ok(observationsList);
         } catch(Exception e) {
-            return serverError(e);
+            return ok(new ArrayList<>());
         }
     }
 

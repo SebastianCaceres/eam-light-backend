@@ -3,7 +3,6 @@ package ch.cern.cmms.eamlightweb.tools.autocomplete;
 import ch.cern.cmms.eamlightejb.equipment.EquipmentEJB;
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
 import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
-import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.tools.InforException;
 
 import org.springframework.stereotype.Component;

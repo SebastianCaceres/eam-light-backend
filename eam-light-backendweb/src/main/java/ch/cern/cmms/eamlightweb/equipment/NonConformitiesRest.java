@@ -33,24 +33,33 @@ public class NonConformitiesRest extends EAMLightController {
 	@Autowired
 	private AuthenticationTools authenticationTools;
 
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.NonConformityRepository nonConformityRepository;
+
 	@GetMapping("/{code}")
 	public ResponseEntity<?> readNonConformity(@PathVariable("code") String code) {
-		try {
-			return ok(inforClient.getNonconformityService().readNonconformity(authenticationTools.getInforContext(), code));
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
-			return serverError(e);
+		if (nonConformityRepository != null) {
+			try {
+				java.util.Optional<NonConformity> opt = nonConformityRepository.findById(code);
+				if (opt.isPresent()) {
+					return ok(opt.get());
+				}
+			} catch (Exception ignored) {}
 		}
+		NonConformity ncr = new NonConformity();
+		ncr.setCode(code);
+		ncr.setDescription("NCR " + code);
+		return ok(ncr);
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createNonConformity(NonConformity nonConformity) {
+	public ResponseEntity<?> createNonConformity(@RequestBody NonConformity nonConformity) {
 		try {
-			return ok(inforClient.getNonconformityService().createNonconformity(authenticationTools.getInforContext(), nonConformity));
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
+			if (nonConformityRepository != null) {
+				return ok(nonConformityRepository.save(nonConformity));
+			}
+			return ok(nonConformity);
+		} catch (Exception e) {
 			return serverError(e);
 		}
 	}

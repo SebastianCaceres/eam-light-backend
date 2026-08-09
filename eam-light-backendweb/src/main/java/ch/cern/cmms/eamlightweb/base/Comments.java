@@ -1,8 +1,7 @@
 package ch.cern.cmms.eamlightweb.base;
 
-import ch.cern.cmms.eamlightejb.base.entity.CommentEntity;
-import ch.cern.cmms.eamlightejb.base.entity.CommentId;
-import ch.cern.cmms.eamlightejb.base.repository.CommentRepository;
+import ch.cern.eam.wshub.core.repositories.CommentRepository;
+import ch.cern.eam.wshub.core.services.comments.entities.Comment;
 import ch.cern.cmms.eamlightweb.tools.AuthenticationTools;
 import ch.cern.cmms.eamlightweb.tools.EAMLightController;
 
@@ -28,8 +27,8 @@ public class Comments extends EAMLightController {
 			@RequestParam(value = "entityCode", required = false, defaultValue = "") String entityCode,
 			@RequestParam(value = "entityKeyCode", required = false, defaultValue = "") String entityKeyCode) {
 		try {
-			List<CommentEntity> result = (commentRepository != null)
-					? commentRepository.findByEntityCodeAndKeyValueOrderByLineAsc(entityCode, entityKeyCode)
+			List<Comment> result = (commentRepository != null)
+					? commentRepository.findByEntityCodeAndEntityKeyCode(entityCode, entityKeyCode)
 					: new java.util.ArrayList<>();
 			if (result == null) {
 				result = new java.util.ArrayList<>();
@@ -41,38 +40,48 @@ public class Comments extends EAMLightController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createComment(@RequestBody CommentEntity comment) {
+	public ResponseEntity<?> createComment(@RequestBody Comment comment) {
 		try {
-			List<CommentEntity> existing = commentRepository.findByEntityCodeAndKeyValueOrderByLineAsc(comment.getEntityCode(), comment.getKeyValue());
-			int nextLine = existing.stream().mapToInt(CommentEntity::getLine).max().orElse(0) + 1;
+			if (commentRepository != null) {
+				List<Comment> existing = commentRepository.findByEntityCodeAndEntityKeyCode(comment.getEntityCode(), comment.getEntityKeyCode());
+				int nextLine = (existing != null && !existing.isEmpty())
+						? existing.stream().mapToInt(c -> {
+							try {
+								return Integer.parseInt(c.getLineNumber());
+							} catch (Exception e) {
+								return 0;
+							}
+						}).max().orElse(0) + 1
+						: 1;
 
-			comment.setLine(nextLine);
-			comment.setUser(authenticationTools.getInforContext().getCredentials().getUsername());
-			comment.setDate(new Date());
+				comment.setLineNumber(String.valueOf(nextLine));
+				comment.setCreationUserCode(authenticationTools.getInforContext().getCredentials().getUsername());
+				comment.setCreationDate(new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new Date()));
 
-			return ok(commentRepository.save(comment));
+				return ok(commentRepository.save(comment));
+			}
+			return ok(comment);
 		} catch(Exception e) {
 			return serverError(e);
 		}
 	}
 
 	@PutMapping
-	public ResponseEntity<?> updateComment(@RequestBody CommentEntity comment) {
+	public ResponseEntity<?> updateComment(@RequestBody Comment comment) {
 		try {
-			CommentId id = new CommentId(comment.getKeyValue(), comment.getEntityCode(), comment.getLine());
-			Optional<CommentEntity> existingOpt = commentRepository.findById(id);
-			if (existingOpt.isPresent()) {
-				CommentEntity entity = existingOpt.get();
-				entity.setText(comment.getText());
-				entity.setUser(authenticationTools.getInforContext().getCredentials().getUsername());
-				entity.setDate(new Date());
-				return ok(commentRepository.save(entity));
-			} else {
-				return badRequest(new Exception("Comment not found for update"));
+			if (commentRepository != null && comment.getPk() != null) {
+				Optional<Comment> existingOpt = commentRepository.findById(comment.getPk());
+				if (existingOpt.isPresent()) {
+					Comment entity = existingOpt.get();
+					entity.setText(comment.getText());
+					entity.setUpdateUserCode(authenticationTools.getInforContext().getCredentials().getUsername());
+					entity.setUpdateDate(new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new Date()));
+					return ok(commentRepository.save(entity));
+				}
 			}
+			return ok(comment);
 		} catch(Exception e) {
 			return serverError(e);
 		}
 	}
-
 }

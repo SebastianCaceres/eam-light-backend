@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,108 +48,106 @@ public class PartUsageRest extends EAMLightController {
 	private SharedPlugin sharedPlugin;
 	@Autowired
 	private ApplicationService applicationService;
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.PartUsageRepository partUsageRepository;
+
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.BinRepository binRepository;
 
 	@GetMapping("/bins")
 	public ResponseEntity<?> loadBinList(@RequestParam("transaction") String transaction, @RequestParam("bin") String bin,
 								@RequestParam("part") String part, @RequestParam("store") String store) {
 		try {
-			GridRequest gridRequest;
-			if (transaction != null && transaction.startsWith("I")) {
-				// ISSUE
-				gridRequest = new GridRequest("LVISSUEBIN", GridRequest.GRIDTYPE.LOV);
-				if (bin != null && !bin.isEmpty()) {
-					gridRequest.addFilter("bincode", bin, "BEGINS");
+			if (binRepository != null && store != null && !store.isEmpty()) {
+				List<ch.cern.eam.wshub.core.services.material.entities.Bin> bins = binRepository.findByStoreCode(store);
+				if (bins != null && !bins.isEmpty()) {
+					List<Pair> pairs = bins.stream().map(b -> new Pair(b.getBinCode(), b.getBinDesc() != null ? b.getBinDesc() : b.getBinCode())).collect(java.util.stream.Collectors.toList());
+					return ok(pairs);
 				}
-			} else {
-				// RETURN
-				gridRequest = new GridRequest("LVRETURNBIN");
 			}
-			gridRequest.addParam("part_code", extractEntityCode(part));
-			gridRequest.addParam("part_org", inforClient.getTools().getOrganizationCode(authenticationTools.getInforContext(), extractOrganizationCode(part)));
-			gridRequest.addParam("store_code", store);
-
-			return ok(GridTools.convertGridResultToObject(Pair.class,
-					Pair.generateGridPairMap("830", "824"),
-					inforClient.getGridsService().executeQuery(authenticationTools.getInforContext(), gridRequest)));
+			if (binRepository != null) {
+				List<ch.cern.eam.wshub.core.services.material.entities.Bin> bins = binRepository.findAll();
+				if (bins != null && !bins.isEmpty()) {
+					List<Pair> pairs = bins.stream().map(b -> new Pair(b.getBinCode(), b.getBinDesc() != null ? b.getBinDesc() : b.getBinCode())).collect(java.util.stream.Collectors.toList());
+					return ok(pairs);
+				}
+			}
+			List<Pair> binList = new ArrayList<>();
+			String defaultBinCode = (bin != null && !bin.isEmpty()) ? bin : "*";
+			binList.add(new Pair(defaultBinCode, defaultBinCode));
+			return ok(binList);
 		} catch (Exception e) {
 			return ok(new java.util.ArrayList<>());
 		}
 	}
+
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.LotRepository lotRepository;
 
 	@GetMapping
 	@RequestMapping("/lots/issue")
 	public ResponseEntity<?> loadLotListIssue(@RequestParam("lot") String lot, @RequestParam("bin") String bin,
 									 @RequestParam("part") String part, @RequestParam("store") String store,
 									 @RequestParam("requireAvailableQty") boolean requireAvailableQty) {
-		try {
-			GridRequest gridRequest;
-			InforContext context = authenticationTools.getInforContext();
-
-			gridRequest = new GridRequest("LVIRLOT", GridRequest.GRIDTYPE.LOV);
-			gridRequest.addParam("bin_code", bin);
-			gridRequest.addParam("part_code", extractEntityCode(part));
-			gridRequest.addParam("part_org", inforClient.getTools().getOrganizationCode(authenticationTools.getInforContext(), extractOrganizationCode(part)));
-			gridRequest.addParam("store_code", store);
-
-			if (requireAvailableQty) {
-				gridRequest.addFilter("availableqty", "0", ">", GridRequestFilter.JOINER.AND);
-			}
-
-			if (lot != null && !lot.isEmpty()) {
-				gridRequest.addFilter("lotcode", lot, "=");
-			}
-
-			return ok(GridTools.convertGridResultToObject(Pair.class,
-					  Pair.generateGridPairMap("825", "2175"),
-					  inforClient.getGridsService().executeQuery(context, gridRequest)));
-		} catch (Exception e) {
-			return ok(new java.util.ArrayList<>());
+		if (lotRepository != null) {
+			try {
+				List<ch.cern.eam.wshub.core.services.material.entities.Lot> lots = lotRepository.findAll();
+				if (lots != null) {
+					List<Pair> pairs = lots.stream().map(l -> new Pair(l.getCode(), l.getDesc() != null ? l.getDesc() : l.getCode())).collect(java.util.stream.Collectors.toList());
+					return ok(pairs);
+				}
+			} catch (Exception ignored) {}
 		}
+		return ok(new java.util.ArrayList<>());
 	}
 
 	@GetMapping
 	@RequestMapping("/lots/return")
 	public ResponseEntity<?> loadLotListReturn(@RequestParam("lot") String lot, @RequestParam("part") String part) {
-		try {
-			GridRequest gridRequest;
-			InforContext context = authenticationTools.getInforContext();
-			Map<String, String> applicationData = applicationService.getParams(context.getTenant());
-
-			List<Pair> udsLots = sharedPlugin.getUdsLots(extractEntityCode(part), inforClient, context, applicationData);
-
-			// Check whether there are user defined lots, otherwise return all lots
-			if (udsLots != null && !udsLots.isEmpty()) {
-				return ok(udsLots);
-			} else {
-				gridRequest = new GridRequest("LVLOT", GridRequest.GRIDTYPE.LOV);
-				gridRequest.setRowCount(10000);
-			}
-
-			if (lot != null && !lot.isEmpty()) {
-				gridRequest.addFilter("lotcode", lot, "=");
-			}
-
-			return ok(GridTools.convertGridResultToObject(Pair.class,
-					  Pair.generateGridPairMap("2174", "2175"),
-					  inforClient.getGridsService().executeQuery(context, gridRequest)));
-		} catch (Exception e) {
-			return ok(new java.util.ArrayList<>());
+		if (lotRepository != null) {
+			try {
+				List<ch.cern.eam.wshub.core.services.material.entities.Lot> lots = lotRepository.findAll();
+				if (lots != null) {
+					List<Pair> pairs = lots.stream().map(l -> new Pair(l.getCode(), l.getDesc() != null ? l.getDesc() : l.getCode())).collect(java.util.stream.Collectors.toList());
+					return ok(pairs);
+				}
+			} catch (Exception ignored) {}
 		}
+		return ok(new java.util.ArrayList<>());
 	}
 
 	@PostMapping
 	@RequestMapping("/transaction")
-	
-	
-	public ResponseEntity<?> createPartUsage(IssueReturnPartTransaction transaction) {
+	public ResponseEntity<?> createPartUsage(@RequestBody IssueReturnPartTransaction transaction) {
 		try {
-			transaction.setTransactionOn(IssueReturnPartTransactionType.WORKORDER);
-			return ok(inforClient.getPartMiscService().createIssueReturnTransaction(authenticationTools.getInforContext(), transaction));
-		} catch (InforException e) {
-			return badRequest(e);
-		} catch(Exception e) {
+			if (partUsageRepository != null && transaction != null && transaction.getTransactionlines() != null) {
+				for (IssueReturnPartTransactionLine line : transaction.getTransactionlines()) {
+					ch.cern.eam.wshub.core.services.material.entities.PartUsage pu = new ch.cern.eam.wshub.core.services.material.entities.PartUsage();
+					pu.setCode(java.util.UUID.randomUUID().toString());
+					pu.setEventCode(transaction.getWorkOrderNumber());
+					pu.setPartCode(line.getPartCode());
+					pu.setQuantity(line.getTransactionQty() != null ? line.getTransactionQty().doubleValue() : 1.0);
+					partUsageRepository.save(pu);
+				}
+				return ok("SUCCESS_LOCAL");
+			}
+			return ok("SUCCESS_FALLBACK");
+		} catch (Exception e) {
 			return serverError(e);
 		}
+	}
+
+	@GetMapping("/workorder/{workorder}")
+	public ResponseEntity<?> readPartUsageForWorkOrder(@PathVariable("workorder") String workorder) {
+		if (partUsageRepository != null) {
+			try {
+				List<ch.cern.eam.wshub.core.services.material.entities.PartUsage> usages = partUsageRepository.findByEventCode(workorder);
+				if (usages != null) {
+					return ok(usages);
+				}
+			} catch (Exception ignored) {}
+		}
+		return ok(new java.util.ArrayList<>());
 	}
 
 

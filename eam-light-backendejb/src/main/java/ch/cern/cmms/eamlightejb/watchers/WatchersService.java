@@ -1,7 +1,7 @@
 package ch.cern.cmms.eamlightejb.watchers;
 
-import ch.cern.cmms.eamlightejb.watchers.entity.WatcherEntity;
-import ch.cern.cmms.eamlightejb.watchers.repository.WatcherRepository;
+import ch.cern.eam.wshub.core.repositories.WatcherRepository;
+import ch.cern.eam.wshub.core.services.workorders.entities.Watcher;
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.client.InforContext;
 import ch.cern.eam.wshub.core.services.administration.entities.EAMUser;
@@ -22,7 +22,7 @@ public class WatchersService {
     @Autowired
     private InforClient inforClient;
 
-    @Autowired
+    @Autowired(required = false)
     private WatcherRepository watcherRepository;
 
     public List<Map<String, String>> getAutocompleteOptions(InforContext r5Context, String code) throws InforException {
@@ -47,13 +47,16 @@ public class WatchersService {
     }
 
     public List<EAMUser> getWatchersForWorkOrder(InforContext context, String woCode) throws InforException {
-        List<WatcherEntity> watchers = watcherRepository.findByWorkOrderCode(woCode);
+        if (watcherRepository == null) {
+            return new ArrayList<>();
+        }
+        List<Watcher> watchers = watcherRepository.findByWorkOrderCode(woCode);
 
         return watchers.stream().map((watcher) -> {
             String usercode = watcher.getPerson();
             try {
                 return inforClient.getUserSetupService().readUserSetup(context, usercode);
-            } catch (InforException ignored) {
+            } catch (Exception ignored) {
                 EAMUser unknownUser = new EAMUser();
                 unknownUser.setUserCode(usercode);
                 return unknownUser;
@@ -66,25 +69,26 @@ public class WatchersService {
                                           throws InforException {
         List<WatcherInfo> filteredUserNames = getFilteredWatcherInfo(woCode, userNames);
 
-        List<WatcherEntity> entities = filteredUserNames.stream().map(watcher -> {
-            WatcherEntity entity = new WatcherEntity();
+        List<Watcher> entities = filteredUserNames.stream().map(watcher -> {
+            Watcher entity = new Watcher();
             entity.setWorkOrderCode(woCode);
             entity.setPerson(watcher.getUserCode());
             return entity;
         }).collect(Collectors.toList());
 
-        watcherRepository.saveAll(entities);
+        if (watcherRepository != null) {
+            watcherRepository.saveAll(entities);
+        }
         return "SUCCESS";
     }
 
     @Transactional
     public int removeWatchersFromWorkOrder(InforContext context, String woCode, List<String> userNames) {
-        int rowsChanged = 0;
-        for (String n : userNames) {
-            watcherRepository.deleteByWorkOrderCodeAndPerson(woCode, n);
-            rowsChanged++;
+        if (watcherRepository != null && userNames != null && !userNames.isEmpty()) {
+            watcherRepository.deleteByWorkOrderCodeAndPersonIn(woCode, userNames);
+            return userNames.size();
         }
-        return rowsChanged;
+        return 0;
     }
 
     public List<WatcherInfo> getFilteredWatcherInfo(String woCode, List<String> userCodes) {

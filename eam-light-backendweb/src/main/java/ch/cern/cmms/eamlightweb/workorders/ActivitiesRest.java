@@ -15,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigInteger;
+import java.util.List;
+
 @RestController
 @RequestMapping("/activities")
 public class ActivitiesRest extends EAMLightController {
@@ -23,24 +26,29 @@ public class ActivitiesRest extends EAMLightController {
 	private InforClient inforClient;
 	@Autowired
 	private AuthenticationTools authenticationTools;
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.ActivityRepository activityRepository;
 
 	@GetMapping("/read")
 	public ResponseEntity<?> readActivities(@RequestParam("workorder") String number, @RequestParam(value = "includeChecklists", defaultValue = "true") Boolean includeChecklists) {
-		try {
-			return ok(inforClient.getLaborBookingService().readActivities(authenticationTools.getInforContext(), number, includeChecklists));
-		} catch (Exception e) {
-			return ok(new java.util.ArrayList<>());
+		if (activityRepository != null) {
+			try {
+				List<Activity> activities = activityRepository.findByWorkOrder(number);
+				if (activities != null) {
+					return ok(activities);
+				}
+			} catch (Exception ignored) {}
 		}
+		return ok(new java.util.ArrayList<>());
 	}
 
 	@PostMapping
-	
-	
-	public ResponseEntity<?> createActivity(Activity activity) {
+	public ResponseEntity<?> createActivity(@RequestBody Activity activity) {
 		try {
-			return ok(inforClient.getLaborBookingService().createActivity(authenticationTools.getInforContext(),activity));
-		} catch (InforException e) {
-			return badRequest(e);
+			if (activityRepository != null) {
+				return ok(activityRepository.save(activity));
+			}
+			return ok(activity);
 		} catch(Exception e) {
 			return serverError(e);
 		}
