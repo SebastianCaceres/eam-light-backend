@@ -97,11 +97,23 @@ public class SoapEradicator {
                 }
 
                 if (targetBlock != null) {
-                    boolean hasReturn = targetBlock.getStatements().stream().anyMatch(Statement::isReturnStmt);
+                    boolean hasReturn = targetBlock.toString().contains("return ");
                     if (hasReturn) {
                         body.getStatements().clear();
                         for (Statement s : targetBlock.getStatements()) {
                             body.addStatement(s);
+                        }
+                        // If the unwrapped block ends with an if-statement without a top-level return, append return null;
+                        if (!body.getStatements().isEmpty() && !body.getStatement(body.getStatements().size() - 1).isReturnStmt()) {
+                            // Check if first statement is Optional declaration
+                            String firstStmtStr = body.getStatement(0).toString();
+                            if (firstStmtStr.startsWith("Optional<") && firstStmtStr.contains("Repository.findById(")) {
+                                String varName = firstStmtStr.substring(firstStmtStr.indexOf(" ") + 1, firstStmtStr.indexOf("=")).trim();
+                                body.getStatements().clear();
+                                body.addStatement(StaticJavaParser.parseStatement("return " + varName + ".orElse(null);"));
+                            } else {
+                                body.addStatement(StaticJavaParser.parseStatement("return null;"));
+                            }
                         }
                         return true;
                     }
