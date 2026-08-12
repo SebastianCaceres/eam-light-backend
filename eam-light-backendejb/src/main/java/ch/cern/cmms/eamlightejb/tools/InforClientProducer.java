@@ -2,13 +2,9 @@ package ch.cern.cmms.eamlightejb.tools;
 
 import ch.cern.cmms.eamlightejb.cache.ExternalCache;
 import ch.cern.cmms.eamlightejb.data.ApplicationData;
-import ch.cern.cmms.eamlightejb.tools.soaphandler.SOAPHandlerResolver;
 import ch.cern.eam.wshub.core.client.InforClient;
 import ch.cern.eam.wshub.core.interceptors.InforInterceptor;
 import ch.cern.eam.wshub.core.repositories.*;
-import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -88,11 +84,9 @@ public class InforClientProducer {
                 inforWsUrl = "http://localhost/inforws";
             }
 
-            // Build the Infor Client
             InforClient inforClient = new InforClient.Builder(inforWsUrl)
                     .withDefaultTenant(Tools.getVariableValue("EAMLIGHT_INFOR_TENANT"))
                     .withDefaultOrganizationCode(Tools.getVariableValue("EAMLIGHT_INFOR_ORGANIZATION"))
-                    .withSOAPHandlerResolver(new SOAPHandlerResolver())
                     .withDataSource(dataSource)
                     .withEntityManagerFactory(entityManagerFactory)
                     .withInforInterceptor(inforInterceptor)
@@ -116,18 +110,6 @@ public class InforClientProducer {
                     .localizeResults(false)
                     .build();
 
-            if (inforClient.getInforWebServicesToolkitClient() != null) {
-                try {
-                    HTTPConduit conduit = (HTTPConduit)ClientProxy.getClient(inforClient.getInforWebServicesToolkitClient()).getConduit();
-                    if (applicationData.trustAllCertificates()) {
-                        conduit.setTlsClientParameters(Tools.tlsClientParameters());
-                    }
-                    HTTPClientPolicy client = conduit.getClient();
-                    client.setAllowChunking(false);
-                } catch (Exception e) {
-                    System.out.println("SOAP HTTPConduit configuration skipped: " + e.getMessage());
-                }
-            }
             return inforClient;
         } catch (Exception exception) {
             System.out.println("Infor Client could not be initialized: " + exception.getMessage());

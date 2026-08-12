@@ -9,12 +9,6 @@ import ch.cern.eam.wshub.core.services.equipment.entities.Location;
 import ch.cern.eam.wshub.core.tools.InforException;
 import static ch.cern.eam.wshub.core.tools.Tools.extractEntityCode;
 import static ch.cern.eam.wshub.core.tools.Tools.extractOrganizationCode;
-import net.datastream.schemas.mp_fields.LOCATIONID_Type;
-import net.datastream.schemas.mp_fields.ORGANIZATIONID_Type;
-import net.datastream.schemas.mp_functions.mp0318_001.MP0318_GetLocation_001;
-import net.datastream.schemas.mp_functions.mp0319_001.MP0319_SyncLocation_001;
-import net.datastream.schemas.mp_results.mp0318_001.MP0318_GetLocation_001_Result;
-import net.datastream.schemas.mp_results.mp0319_001.MP0319_SyncLocation_001_Result;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +24,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import javax.xml.ws.soap.SOAPFaultException;
 
 @RestController
 @RequestMapping("/locations")
@@ -49,15 +42,8 @@ public class LocationRest extends EAMLightNativeRestController {
             return initLocation();
         }
         try {
-            MP0318_GetLocation_001 getLocation = new MP0318_GetLocation_001();
-            getLocation.setLOCATIONID(new LOCATIONID_Type());
-            getLocation.getLOCATIONID().setORGANIZATIONID(new ORGANIZATIONID_Type());
-            getLocation.getLOCATIONID().getORGANIZATIONID().setORGANIZATIONCODE(extractOrganizationCode(location));
-            getLocation.getLOCATIONID().setLOCATIONCODE( extractEntityCode(location) );
-
-            MP0318_GetLocation_001_Result getLocationResult = inforClient.getTools().performInforOperation(authenticationTools.getInforContext(), inforClient.getInforWebServicesToolkitClient()::getLocationOp , getLocation);
-
-            return ok(getLocationResult);
+            Location locationEntity = inforClient.getLocationService().readLocation(authenticationTools.getInforContext(), extractEntityCode(location));
+            return ok(locationEntity);
         } catch (Exception e) {
             return initLocation();
         }
@@ -67,7 +53,7 @@ public class LocationRest extends EAMLightNativeRestController {
     public ResponseEntity<?> createLocation(Location location) {
         try {
             return ok(inforClient.getLocationService().createLocation(authenticationTools.getInforContext(), location));
-        } catch (SOAPFaultException e) {
+        } catch (InforException e) {
             return badRequest(e);
         } catch (Exception e) {
             return serverError(e);
@@ -75,12 +61,9 @@ public class LocationRest extends EAMLightNativeRestController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateLocation(net.datastream.schemas.mp_entities.location_001.Location location) {
+    public ResponseEntity<?> updateLocation(Location location) {
         try {
-            MP0319_SyncLocation_001 syncLocation = new MP0319_SyncLocation_001();
-            syncLocation.setLocation(location);
-            MP0319_SyncLocation_001_Result result =  inforClient.getTools().performInforOperation(authenticationTools.getInforContext(), inforClient.getInforWebServicesToolkitClient()::syncLocationOp , syncLocation);
-            return ok(result);
+            return ok(inforClient.getLocationService().updateLocation(authenticationTools.getInforContext(), location));
         } catch (InforException e) {
             return badRequest(e);
         } catch (Exception e) {

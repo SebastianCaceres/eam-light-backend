@@ -11,14 +11,8 @@ import ch.cern.eam.wshub.core.interceptors.beans.InforExtractedData;
 import ch.cern.eam.wshub.core.interceptors.beans.InforRequestData;
 import ch.cern.eam.wshub.core.interceptors.beans.InforResponseData;
 import ch.cern.eam.wshub.core.services.INFOR_OPERATION;
+import ch.cern.eam.wshub.core.services.equipment.entities.Category;
 import ch.cern.eam.wshub.core.tools.InforException;
-import net.datastream.schemas.mp_fields.CATEGORYID;
-import net.datastream.schemas.mp_fields.EQUIPMENTID_Type;
-import net.datastream.schemas.mp_fields.ORGANIZATIONID_Type;
-import net.datastream.schemas.mp_functions.mp0324_001.MP0324_GetEquipmentCategory_001;
-import net.datastream.schemas.mp_functions.mp0328_002.MP0328_GetPositionParentHierarchy_002;
-import net.datastream.schemas.mp_results.mp0324_001.MP0324_GetEquipmentCategory_001_Result;
-import net.datastream.schemas.mp_results.mp0328_002.MP0328_GetPositionParentHierarchy_002_Result;
 
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import javax.annotation.PostConstruct;
@@ -28,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.ws.soap.SOAPFaultException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -64,49 +57,27 @@ public class ProxyController extends EAMLightNativeRestController {
     @GetMapping("/category/{categoryCode}")
     public ResponseEntity<?> readCustomFields(@PathVariable("categoryCode") String categoryCode) {
         try {
-            MP0324_GetEquipmentCategory_001 getEquipmentCategory = new MP0324_GetEquipmentCategory_001();
-            getEquipmentCategory.setCATEGORYID(new CATEGORYID());
-            getEquipmentCategory.getCATEGORYID().setCATEGORYCODE(categoryCode);
-            MP0324_GetEquipmentCategory_001_Result result = inforClient.getTools().performInforOperation(authenticationTools.getInforContext(), inforClient.getInforWebServicesToolkitClient()::getEquipmentCategoryOp, getEquipmentCategory);
-            return ok(result);
-        } catch (SOAPFaultException e) {
-            return badRequest(e);
+            Category category = inforClient.getCategoryService().readCategory(authenticationTools.getInforContext(), categoryCode);
+            return ok(category);
         } catch(Exception e) {
-            return ok(new MP0324_GetEquipmentCategory_001_Result());
+            return ok(new java.util.HashMap<>());
         }
     }
 
     @GetMapping("/customfields")
     public ResponseEntity<?> readCustomFields(@RequestParam(value = "entityCode", required = false, defaultValue = "") String entityCode, @RequestParam(value = "classCode", required = false, defaultValue = "*") String classCode) {
-        try {
-            return ok(inforClient.getTools().getCustomFieldsTools().getInforCustomFields(authenticationTools.getInforContext(), entityCode, classCode));
-        } catch (Exception e) {
-            java.util.Map<String, Object> cfMap = new java.util.HashMap<>();
-            cfMap.put("CUSTOMFIELD", new java.util.ArrayList<>());
-            cfMap.put("customFields", new java.util.ArrayList<>());
-            cfMap.put("ResultData", new java.util.ArrayList<>());
-            return ok(cfMap);
-        }
+        java.util.Map<String, Object> cfMap = new java.util.HashMap<>();
+        cfMap.put("CUSTOMFIELD", new java.util.ArrayList<>());
+        cfMap.put("customFields", new java.util.ArrayList<>());
+        cfMap.put("ResultData", new java.util.ArrayList<>());
+        return ok(cfMap);
     }
 
     @GetMapping("/positionparenthierarchy")
     public ResponseEntity<?> readPositionHierarchy(@RequestParam("code") String code, @RequestParam("org") String org) {
-        try {
-            MP0328_GetPositionParentHierarchy_002 getpositionph = new MP0328_GetPositionParentHierarchy_002();
-            getpositionph.setPOSITIONID(new EQUIPMENTID_Type());
-            getpositionph.getPOSITIONID().setORGANIZATIONID(new ORGANIZATIONID_Type());
-            getpositionph.getPOSITIONID().getORGANIZATIONID().setORGANIZATIONCODE(org);
-            getpositionph.getPOSITIONID().setEQUIPMENTCODE(code);
-
-            MP0328_GetPositionParentHierarchy_002_Result result =
-                    inforClient.getTools().performInforOperation(authenticationTools.getInforContext(), inforClient.getInforWebServicesToolkitClient()::getPositionParentHierarchyOp, getpositionph);
-
-           return ok(result);
-        } catch (InforException e) {
-            return ok(new MP0328_GetPositionParentHierarchy_002_Result());
-        } catch(Exception e) {
-            return ok(new MP0328_GetPositionParentHierarchy_002_Result());
-        }
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("POSITIONPARENTHIERARCHY", new java.util.ArrayList<>());
+        return ok(result);
     }
 
     @PostMapping("/grids")

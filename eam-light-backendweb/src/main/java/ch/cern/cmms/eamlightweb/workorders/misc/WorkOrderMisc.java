@@ -19,7 +19,7 @@ import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequestFilter;
 import ch.cern.eam.wshub.core.tools.InforException;
-import net.datastream.schemas.mp_results.mp7336_001.AdditionalWOEquipDetails;
+import ch.cern.eam.wshub.core.services.workorders.entities.AdditionalWOEquipDetails;
 
 @RestController
 @RequestMapping("/workordersmisc")

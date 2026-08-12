@@ -1,7 +1,6 @@
 package ch.cern.cmms.eamlightejb.tools;
 
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.X509Certificate;
@@ -39,7 +38,7 @@ public class Tools {
         }
     }
 
-    public static TLSClientParameters tlsClientParameters() {
+    public static SSLContext sslContext() throws Exception {
         TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
             public X509Certificate[] getAcceptedIssuers() {
                 return null;
@@ -52,10 +51,9 @@ public class Tools {
             }
         } };
 
-        TLSClientParameters tlsClientParameters = new TLSClientParameters();
-        tlsClientParameters.setDisableCNCheck(true);
-        tlsClientParameters.setTrustManagers(trustAllCerts);
-        return tlsClientParameters;
+        SSLContext sc = SSLContext.getInstance("TLS");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        return sc;
     }
 
 }
