@@ -17,6 +17,7 @@
 		<module>eam-light-backendweb</module>
 		<module>eam-light-backendejb</module>
 		<module>eam-light-interfaces</module>
+		<module>eam-refactor-tool</module>
 	</modules>
 
 	<properties>

@@ -116,14 +116,18 @@ public class InforClientProducer {
                     .localizeResults(false)
                     .build();
 
-            // Avoid 'Chunked transfer encoding is currently not supported' error which might be thrown by some web servers
-            HTTPConduit conduit = (HTTPConduit)ClientProxy.getClient(inforClient.getInforWebServicesToolkitClient()).getConduit();
-            // Should be only executed conditionally
-            if (applicationData.trustAllCertificates()) {
-                conduit.setTlsClientParameters(Tools.tlsClientParameters());
+            if (inforClient.getInforWebServicesToolkitClient() != null) {
+                try {
+                    HTTPConduit conduit = (HTTPConduit)ClientProxy.getClient(inforClient.getInforWebServicesToolkitClient()).getConduit();
+                    if (applicationData.trustAllCertificates()) {
+                        conduit.setTlsClientParameters(Tools.tlsClientParameters());
+                    }
+                    HTTPClientPolicy client = conduit.getClient();
+                    client.setAllowChunking(false);
+                } catch (Exception e) {
+                    System.out.println("SOAP HTTPConduit configuration skipped: " + e.getMessage());
+                }
             }
-            HTTPClientPolicy client = conduit.getClient();
-            client.setAllowChunking(false);
             return inforClient;
         } catch (Exception exception) {
             System.out.println("Infor Client could not be initialized: " + exception.getMessage());
