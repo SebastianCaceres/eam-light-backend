@@ -2154,3 +2154,6 @@ eam-light-backend.iml
 /eam-light-interfaces/eam-light-frontend/package-lock.json
 /eam-light-backendweb/chromedriver.log
 /.gemini/
+/eam-light-interfaces/chromedriver.log
+/eam-light-opensource/chromedriver.log
+/OpenEAM-master.zip

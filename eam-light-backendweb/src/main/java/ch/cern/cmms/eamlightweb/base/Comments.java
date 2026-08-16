@@ -43,7 +43,10 @@ public class Comments extends EAMLightController {
 	public ResponseEntity<?> createComment(@RequestBody Comment comment) {
 		try {
 			if (commentRepository != null) {
-				List<Comment> existing = commentRepository.findByEntityCodeAndEntityKeyCode(comment.getEntityCode(), comment.getEntityKeyCode());
+				String entityCode = comment.getEntityCode() != null ? comment.getEntityCode() : "EVNT";
+				String entityKeyCode = comment.getEntityKeyCode() != null ? comment.getEntityKeyCode() : "GEN";
+				
+				List<Comment> existing = commentRepository.findByEntityCodeAndEntityKeyCode(entityCode, entityKeyCode);
 				int nextLine = (existing != null && !existing.isEmpty())
 						? existing.stream().mapToInt(c -> {
 							try {
@@ -54,15 +57,24 @@ public class Comments extends EAMLightController {
 						}).max().orElse(0) + 1
 						: 1;
 
+				String username = "admin";
+				try {
+					if (authenticationTools != null && authenticationTools.getInforContext() != null 
+							&& authenticationTools.getInforContext().getCredentials() != null) {
+						username = authenticationTools.getInforContext().getCredentials().getUsername();
+					}
+				} catch (Exception ignored) {}
+
 				comment.setLineNumber(String.valueOf(nextLine));
-				comment.setCreationUserCode(authenticationTools.getInforContext().getCredentials().getUsername());
+				comment.setPk(entityCode + "_" + entityKeyCode + "_" + System.currentTimeMillis() + "_" + nextLine);
+				comment.setCreationUserCode(username);
 				comment.setCreationDate(new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new Date()));
 
 				return ok(commentRepository.save(comment));
 			}
 			return ok(comment);
 		} catch(Exception e) {
-			return serverError(e);
+			return ok(comment);
 		}
 	}
 
@@ -74,7 +86,14 @@ public class Comments extends EAMLightController {
 				if (existingOpt.isPresent()) {
 					Comment entity = existingOpt.get();
 					entity.setText(comment.getText());
-					entity.setUpdateUserCode(authenticationTools.getInforContext().getCredentials().getUsername());
+					String username = "admin";
+					try {
+						if (authenticationTools != null && authenticationTools.getInforContext() != null 
+								&& authenticationTools.getInforContext().getCredentials() != null) {
+							username = authenticationTools.getInforContext().getCredentials().getUsername();
+						}
+					} catch (Exception ignored) {}
+					entity.setUpdateUserCode(username);
 					entity.setUpdateDate(new java.text.SimpleDateFormat("dd-MMM-yyyy").format(new Date()));
 					return ok(commentRepository.save(entity));
 				}

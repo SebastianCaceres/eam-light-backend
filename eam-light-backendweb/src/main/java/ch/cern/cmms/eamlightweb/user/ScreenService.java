@@ -34,6 +34,12 @@ public class ScreenService implements Cacheable {
     private final Cache<String, Map<String, ScreenInfo>> screenCache = CacheUtils.buildDefaultCache();
     private final Cache<String, Map<String, List<Map<String, String>>>> reportsCache = CacheUtils.buildDefaultCache();
 
+    @Autowired(required = false)
+    private ch.cern.eam.wshub.core.repositories.ScreenRepository screenRepository;
+
+    @Autowired(required = false)
+    private ch.cern.eam.wshub.core.repositories.ScreenLayoutRepository screenLayoutRepository;
+
     @Autowired
     private InforClient inforClient;
     private List<String> screens;
@@ -68,6 +74,9 @@ public class ScreenService implements Cacheable {
     }
 
     public Map<String, ScreenInfo> getScreens(InforContext context, String userGroup) throws InforException {
+        if (context == null) {
+            return loadScreens(null, userGroup);
+        }
         try {
             String screenCacheKey = Tools.getCacheKeyWithLang(context, userGroup);
             return screenCache.get(screenCacheKey, key -> loadScreens(context, userGroup));
@@ -106,19 +115,36 @@ public class ScreenService implements Cacheable {
 
             return screens;
         } catch (Exception e) {
-            // Local standalone fallback when no live Infor EAM / Hexagon SOAP server is connected
-            Map<String, ScreenInfo> fallbackScreens = new HashMap<>();
+            Map<String, ScreenInfo> jpaScreens = new HashMap<>();
+            Map<String, String> entityMapping = new HashMap<>();
+            entityMapping.put("WSJOBS", "EVNT");
+            entityMapping.put("OSOBJA", "OBJ");
+            entityMapping.put("OSOBJP", "OBJ");
+            entityMapping.put("OSOBJS", "OBJ");
+            entityMapping.put("SSPART", "PART");
+            entityMapping.put("OSOBJL", "LOC");
+            entityMapping.put("OSNCHD", "NCR");
+            entityMapping.put("OSJOBS", "EVNT");
+            entityMapping.put("SSMANU", "MANU");
+            entityMapping.put("SSLOTS", "LOT");
+            entityMapping.put("WSPMTW", "PMTW");
+            entityMapping.put("OSEQRV", "EQRV");
+
             for (String code : screens) {
+                if (screenRepository != null && !screenRepository.existsById(code)) {
+                    screenRepository.save(new ch.cern.eam.wshub.core.services.administration.entities.Screen(code, code + " Screen"));
+                }
                 ScreenInfo info = new ScreenInfo();
                 info.setScreenCode(code);
                 info.setParentScreen(code);
+                info.setEntity(entityMapping.getOrDefault(code, "EVNT"));
                 info.setReadAllowed(true);
                 info.setCreationAllowed(true);
                 info.setUpdateAllowed(true);
                 info.setDeleteAllowed(true);
-                fallbackScreens.put(code, info);
+                jpaScreens.put(code, info);
             }
-            return fallbackScreens;
+            return jpaScreens;
         }
     }
 

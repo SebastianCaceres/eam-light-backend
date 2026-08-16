@@ -29,6 +29,9 @@ public class ActivitiesRest extends EAMLightController {
 	@Autowired(required = false)
 	private ch.cern.eam.wshub.core.repositories.ActivityRepository activityRepository;
 
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.WorkOrderRepository workOrderRepository;
+
 	@GetMapping("/read")
 	public ResponseEntity<?> readActivities(@RequestParam("workorder") String number, @RequestParam(value = "includeChecklists", defaultValue = "true") Boolean includeChecklists) {
 		if (activityRepository != null) {
@@ -46,6 +49,14 @@ public class ActivitiesRest extends EAMLightController {
 	public ResponseEntity<?> createActivity(@RequestBody Activity activity) {
 		try {
 			if (activityRepository != null) {
+				String woNumber = activity.getWorkOrderNumber();
+				// BUSINESS RULE: Cannot add activities if Work Order is Closed or Completed
+				if (workOrderRepository != null && woNumber != null) {
+					ch.cern.eam.wshub.core.services.workorders.entities.WorkOrder wo = workOrderRepository.findById(woNumber).orElse(null);
+					if (wo != null && ("CL".equalsIgnoreCase(wo.getStatusCode()) || "C".equalsIgnoreCase(wo.getStatusCode()))) {
+						return badRequest(new Exception("Cannot add an Activity to a Closed or Completed Work Order (Status: " + wo.getStatusCode() + ")"));
+					}
+				}
 				return ok(activityRepository.save(activity));
 			}
 			return ok(activity);
@@ -55,10 +66,18 @@ public class ActivitiesRest extends EAMLightController {
 	}
 
 	@PutMapping
-	
-	
-	public ResponseEntity<?> updateActivity(Activity activity) {
+	public ResponseEntity<?> updateActivity(@RequestBody Activity activity) {
 		try {
+			if (activityRepository != null) {
+				String woNumber = activity.getWorkOrderNumber();
+				if (workOrderRepository != null && woNumber != null) {
+					ch.cern.eam.wshub.core.services.workorders.entities.WorkOrder wo = workOrderRepository.findById(woNumber).orElse(null);
+					if (wo != null && ("CL".equalsIgnoreCase(wo.getStatusCode()) || "C".equalsIgnoreCase(wo.getStatusCode()))) {
+						return badRequest(new Exception("Cannot update an Activity on a Closed or Completed Work Order (Status: " + wo.getStatusCode() + ")"));
+					}
+				}
+				return ok(activityRepository.save(activity));
+			}
 			return ok(inforClient.getLaborBookingService().updateActivity(authenticationTools.getInforContext(), activity, "confirmed"));
 		} catch (InforException e) {
 			return badRequest(e);
@@ -81,9 +100,19 @@ public class ActivitiesRest extends EAMLightController {
 	}
 
 	@DeleteMapping
-	
-	public ResponseEntity<?> deleteActivity(Activity activity) {
+	public ResponseEntity<?> deleteActivity(@RequestBody Activity activity) {
 		try {
+			if (activityRepository != null) {
+				String woNumber = activity.getWorkOrderNumber();
+				if (workOrderRepository != null && woNumber != null) {
+					ch.cern.eam.wshub.core.services.workorders.entities.WorkOrder wo = workOrderRepository.findById(woNumber).orElse(null);
+					if (wo != null && ("CL".equalsIgnoreCase(wo.getStatusCode()) || "C".equalsIgnoreCase(wo.getStatusCode()))) {
+						return badRequest(new Exception("Cannot delete an Activity from a Closed or Completed Work Order (Status: " + wo.getStatusCode() + ")"));
+					}
+				}
+				activityRepository.deleteById(activity.getActivityCode());
+				return ok(activity);
+			}
 			return ok(inforClient.getLaborBookingService().deleteActivity(authenticationTools.getInforContext(), activity));
 		} catch (InforException e) {
 			return badRequest(e);

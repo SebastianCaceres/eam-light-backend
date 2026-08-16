@@ -54,6 +54,9 @@ public class PartUsageRest extends EAMLightController {
 	@Autowired(required = false)
 	private ch.cern.eam.wshub.core.repositories.BinRepository binRepository;
 
+	@Autowired(required = false)
+	private ch.cern.eam.wshub.core.repositories.WorkOrderRepository workOrderRepository;
+
 	@GetMapping("/bins")
 	public ResponseEntity<?> loadBinList(@RequestParam("transaction") String transaction, @RequestParam("bin") String bin,
 								@RequestParam("part") String part, @RequestParam("store") String store) {
@@ -121,6 +124,21 @@ public class PartUsageRest extends EAMLightController {
 	public ResponseEntity<?> createPartUsage(@RequestBody IssueReturnPartTransaction transaction) {
 		try {
 			if (partUsageRepository != null && transaction != null && transaction.getTransactionlines() != null) {
+				String woNumber = extractEntityCode(transaction.getWorkOrderNumber());
+				
+				// BUSINESS RULE: Cannot book parts if Work Order is Closed or Completed
+				if (workOrderRepository != null && woNumber != null) {
+					WorkOrder wo = workOrderRepository.findById(woNumber).orElse(null);
+					if (wo != null && ("CL".equalsIgnoreCase(wo.getStatusCode()) || "C".equalsIgnoreCase(wo.getStatusCode()))) {
+						return badRequest(new Exception("Cannot book parts to a Closed or Completed Work Order (Status: " + wo.getStatusCode() + ")"));
+					}
+				}
+
+				// BUSINESS RULE: Unified Activity & Labor Tracking - Activity must be present
+				if (transaction.getActivityCode() == null || transaction.getActivityCode().trim().isEmpty()) {
+					return badRequest(new Exception("An Activity is required to book parts to a Work Order. Please provide an Activity."));
+				}
+
 				for (IssueReturnPartTransactionLine line : transaction.getTransactionlines()) {
 					ch.cern.eam.wshub.core.services.material.entities.PartUsage pu = new ch.cern.eam.wshub.core.services.material.entities.PartUsage();
 					pu.setCode(java.util.UUID.randomUUID().toString());

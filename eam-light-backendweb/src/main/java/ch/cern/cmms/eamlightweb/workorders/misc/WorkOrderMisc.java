@@ -19,7 +19,6 @@ import ch.cern.cmms.eamlightweb.tools.interceptors.RESTLoggingInterceptor;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequest;
 import ch.cern.eam.wshub.core.services.grids.entities.GridRequestFilter;
 import ch.cern.eam.wshub.core.tools.InforException;
-import ch.cern.eam.wshub.core.services.workorders.entities.AdditionalWOEquipDetails;
 
 @RestController
 @RequestMapping("/workordersmisc")
@@ -30,60 +29,22 @@ public class WorkOrderMisc extends EAMLightController {
 	@Autowired
 	private AuthenticationTools authenticationTools;
 
-	@GetMapping("/eqpmecwo/{workorder}")
-	public ResponseEntity<?> getWorkOrderEquipment(@PathVariable("workorder") String workorder) {
-		try {
-			Map<String, String> map = new HashMap<>();
-			map.put("247", "equipmentCode");
-			map.put("249", "equipmentDesc");
-			map.put("1872", "equipmentType");
-			map.put("448", "equipmentTypeDesc");
-
-			GridRequest gridRequest = new GridRequest("1631", "WSJOBS_MEC", "1618");
-			gridRequest.addParam("param.workordernum", workorder);
-
-			List<WorkOrderEquipment> childrenWOs = inforClient.getTools().getGridTools().convertGridResultToObject(WorkOrderEquipment.class,
-					map,
-					inforClient.getGridsService().executeQuery(authenticationTools.getR5InforContext(), gridRequest));
-			return ok(childrenWOs);
-		} catch(Exception e) {
-			return ok(new java.util.ArrayList<>());
-		}
-	}
-
-	@GetMapping("/childrenwo/{workorder}")
-	public ResponseEntity<?> getChildrenWorkOrders(@PathVariable("workorder") String workorder) {
-		try {
-			Map<String, String> map = new HashMap<>();
-			map.put("1", "number");
-			map.put("2", "description");
-			map.put("5", "equipment");
-			map.put("16", "status");
-			map.put("12", "type");
-
-			GridRequest gridRequest = new GridRequest("176", "WSJOBS_CWO", "180");
-			gridRequest.addParam("param.jobnum", workorder);
-
-			List<ChildWorkOrder> childrenWOs = inforClient.getTools().getGridTools().convertGridResultToObject(ChildWorkOrder.class,
-														map,
-														inforClient.getGridsService().executeQuery(authenticationTools.getR5InforContext(), gridRequest));
-			return ok(childrenWOs);
-		} catch(Exception e) {
-			return ok(new java.util.ArrayList<>());
-		}
-	}
-
 	@GetMapping("/equipment")
 	public ResponseEntity<?> getWOEquipLinearDetails(@RequestParam("eqCode") String eqCode) {
-		try {
-			final AdditionalWOEquipDetails woEquipLinearDetails = inforClient.getWorkOrderMiscService().getEquipLinearDetails(authenticationTools.getR5InforContext(), eqCode);
-			return ok(woEquipLinearDetails);
-		} catch(Exception e) {
-			return ok(new HashMap<>());
-		}
+		return ok(new HashMap<>());
 	}
 
-	@GetMapping("/otherid/{workorder}")
+	@GetMapping("/childrenwo/{workorder:.+}")
+	public ResponseEntity<?> getChildrenWorkOrders(@PathVariable("workorder") String workorder) {
+		return ok(new java.util.ArrayList<>());
+	}
+
+	@GetMapping("/eqpmecwo/{workorder:.+}")
+	public ResponseEntity<?> getWorkOrderEquipment(@PathVariable("workorder") String workorder) {
+		return ok(new java.util.ArrayList<>());
+	}
+
+	@GetMapping("/otherid/{workorder:.+}")
 	public ResponseEntity<?> getWOEqOtherIds(@PathVariable("workorder") String workorder) {
 		try {
 			GridRequest gridRequestWoEqOi = new GridRequest("UUOIEQ", 1000);
